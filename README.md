@@ -12,17 +12,6 @@ pnpm dev
 
 Validação: `pnpm lint`, `pnpm typecheck`, `pnpm test` e `pnpm build`.
 
-## Publicar na Vercel
-
-1. Crie um repositório no GitHub e envie este projeto para ele.
-2. Em [vercel.com](https://vercel.com), escolha **Add New Project** e importe o repositório.
-3. Confirme as configurações: Install Command `pnpm install`, Build Command `pnpm build` e Output Directory `dist`.
-4. Clique em **Deploy**. Novos pushes na branch conectada gerarão deployments automaticamente.
-
-O arquivo `vercel.json` configura o fallback das rotas do React Router para `index.html`. Isso permite abrir diretamente URLs como `/national` e `/backup` após a publicação.
-
-Alternativamente, pela CLI: `corepack pnpm dlx vercel` (preview) ou `corepack pnpm dlx vercel --prod` (produção).
-
 ## Backup e uso offline
 
 A página **Backup & restore** exporta um JSON versionado e permite revisar, mesclar ou substituir a coleção. A importação valida espécies, formas e jogos contra o catálogo antes de alterar o IndexedDB.
