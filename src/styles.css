@@ -147,13 +147,14 @@
   .details select { @apply rounded-lg border border-[var(--line)] bg-[var(--surface)] p-2.5 text-[var(--text)]; }
   .toggle-row { @apply my-3 flex gap-2; }
   .toggle-row button { @apply bg-[var(--surface-2)]; }
-  .primary { @apply flex w-full cursor-pointer justify-center gap-2 rounded-lg border-0 bg-[var(--accent)] p-3 text-white; }
+  .primary { @apply flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border-0 bg-[var(--accent)] p-3 text-white; }
   .primary:disabled { @apply cursor-not-allowed opacity-50; }
   .entry-list { @apply grid gap-2; }
   .entry { @apply flex items-center justify-between rounded-lg border border-[var(--line)] p-2; }
   .entry > div:first-child, .entry > div:last-child { @apply flex items-center gap-2; }
   .entry small { @apply text-[var(--muted)]; }
-  .entry button { @apply size-7 rounded-md border-0 bg-[var(--surface-2)] text-[var(--text)]; }
+  .entry button { @apply inline-grid size-7 shrink-0 place-items-center rounded-md border-0 bg-[var(--surface-2)] p-0 text-[var(--text)]; }
+  .entry button svg { @apply block; }
   .entry .entry-meta { @apply min-w-0 flex-1 flex-wrap; }
   .entry-game { @apply flex flex-col items-start gap-0.5; }
   .entry-game small { @apply text-[9px] font-semibold; }
