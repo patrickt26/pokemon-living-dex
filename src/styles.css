@@ -98,6 +98,7 @@
   .dex-section-selector { @apply mx-auto flex-wrap justify-center; }
   .dex-title-row { @apply mt-1 flex items-center gap-3; }
   .dex-title-row h1 { @apply m-0; }
+  .dex-page-head > div:first-child > p { @apply mt-3; }
   .game-logo { @apply grid size-12 shrink-0 place-items-center overflow-hidden rounded-lg border border-[var(--line)] bg-white p-1 shadow-sm; }
   .game-logo img { @apply max-h-full max-w-full object-contain; }
   .segmented button, .toggle-row button { @apply cursor-pointer rounded-[7px] border-0 bg-transparent px-3 py-1.75 text-[var(--muted)] transition-all duration-200 ease-out; }
@@ -185,10 +186,13 @@
   .game-cards a > span:last-child { @apply font-semibold text-[var(--accent)]; }
   .empty { @apply p-15 text-center text-[var(--muted)]; }
   .backup-grid { @apply grid grid-cols-2 gap-5; }
-  .backup-card { @apply mt-0; }
-  .backup-card h2 { @apply mb-2; }
-  .backup-card p, .backup-preview p { @apply text-[var(--muted)]; }
-  .backup-icon { @apply grid size-11 place-items-center rounded-xl bg-[color-mix(in_srgb,var(--accent)_13%,var(--surface-2))] text-[var(--accent)]; }
+  .backup-card { @apply mt-0 flex flex-col items-start; }
+  .backup-card h2 { @apply mt-4 mb-2; }
+  .backup-card p { @apply mt-0 mb-5 flex-1 leading-6 text-[var(--muted)]; }
+  .backup-preview p { @apply text-[var(--muted)]; }
+  .backup-icon { @apply grid size-11 shrink-0 place-items-center rounded-xl bg-[color-mix(in_srgb,var(--accent)_13%,var(--surface-2))] text-[var(--accent)]; }
+  .backup-card .button-row { @apply flex flex-wrap gap-2.5; }
+  .backup-card .button-row .primary { @apply w-auto; }
   .secondary-action { @apply flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-[var(--line)] bg-[var(--surface-2)] px-4 py-3 font-semibold text-[var(--text)]; }
   .backup-preview { @apply flex items-center justify-between gap-5; }
   .backup-preview h2 { @apply mt-1 mb-0; }
