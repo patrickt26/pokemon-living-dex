@@ -1,0 +1,2 @@
+import { ProgressBar } from './ProgressBar';
+export function ProgressCard({title,obtained,total,color}: {title:string;obtained:number;total:number;color?:string}){const percentage=total?Math.round(obtained/total*1000)/10:0;return <article className="progress-card"><div><span>{title}</span><strong>{percentage}%</strong></div><h3>{obtained.toLocaleString()} <small>/ {total.toLocaleString()}</small></h3><ProgressBar value={percentage} color={color}/></article>}

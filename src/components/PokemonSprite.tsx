@@ -1,0 +1,3 @@
+import { memo } from 'react';
+const FALLBACK_SPRITE='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96"%3E%3Ccircle cx="48" cy="48" r="34" fill="%23252b35" stroke="%235d6878" stroke-width="4"/%3E%3Cpath d="M32 48h32M48 32v32" stroke="%2395a1b3" stroke-width="5" stroke-linecap="round"/%3E%3C/svg%3E';
+export const PokemonSprite=memo(function PokemonSprite({src,name,dim=false}:{src:string;name:string;dim?:boolean}){return <img className={`pokemon-sprite ${dim?'dim':''}`} src={src} alt={name} loading="lazy" decoding="async" onError={event=>{event.currentTarget.onerror=null;event.currentTarget.src=FALLBACK_SPRITE}} />});

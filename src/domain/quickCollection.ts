@@ -1,0 +1,3 @@
+import type { CollectionEntry, FormId, OtFilter } from './models';
+export function getQuickCollectionEntries(entries:CollectionEntry[],formId:FormId,options:{gameId?:string;shinyOnly?:boolean;ot?:OtFilter}={}){return entries.filter(entry=>entry.formId===formId&&(!options.gameId||entry.gameId===options.gameId)&&(!options.shinyOnly||entry.shiny)&&(options.ot===undefined||options.ot==='all'||(options.ot==='own'?entry.ownOT:!entry.ownOT)))}
+export function shouldOpenEntryPicker(entries:CollectionEntry[]){const total=entries.reduce((sum,entry)=>sum+entry.quantity,0);return total>1&&new Set(entries.map(entry=>entry.originGameId??entry.gameId)).size>1}

@@ -1,0 +1,1 @@
+export function ProgressBar({value,color}: {value:number;color?:string}){return <div className="progress-track"><div className="progress-fill" style={{width:`${Math.min(100,value)}%`,background:color}} /></div>}

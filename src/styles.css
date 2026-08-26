@@ -1,0 +1,257 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "DM Sans", system-ui, sans-serif;
+}
+
+@keyframes segment-select {
+  from { opacity:.65; transform:scale(.94); }
+  to { opacity:1; transform:scale(1); }
+}
+
+@layer base {
+  :root { font-family: var(--font-sans); color: #22262e; background: #f5f6f8; font-synthesis: none; }
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  button, input, select { font: inherit; }
+  :focus-visible { outline: 2px solid var(--accent, #635bdb); outline-offset: 2px; }
+}
+
+@layer components {
+  .app {
+    --bg:#f5f6f8; --surface:#fff; --surface-2:#f0f2f5; --text:#22262e;
+    --muted:#737b88; --line:#e1e4e9; --accent:#635bdb;
+    @apply min-h-screen bg-[var(--bg)] text-[var(--text)];
+  }
+  .app.dark { --bg:#14171c; --surface:#1c2027; --surface-2:#242932; --text:#f0f1f3; --muted:#959ca8; --line:#303640; --accent:#8c84ff; }
+
+  .sidebar { @apply fixed inset-y-0 left-0 z-5 flex w-61 flex-col border-r border-[var(--line)] bg-[var(--surface)] px-4.5 py-7; }
+  .brand { @apply flex items-center gap-3 px-2 pb-7.5; }
+  .brand > span { @apply grid size-10.5 place-items-center rounded-xl bg-[var(--accent)] font-bold text-white; }
+  .brand div { @apply flex flex-col; }
+  .brand small { @apply text-[11px] text-[var(--muted)]; }
+  .sidebar nav { @apply grid gap-1; }
+  .sidebar nav a, .theme { @apply flex items-center gap-3 rounded-[10px] border-0 bg-transparent p-3 font-semibold text-[var(--muted)] no-underline; }
+  .sidebar nav a.active { @apply bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-[var(--accent)]; }
+  .game-nav-group { @apply grid; }
+  .game-nav-trigger { @apply relative; }
+  .game-nav-trigger span { @apply flex-1; }
+  .game-nav-chevron { @apply transition-transform duration-200; }
+  .game-nav-submenu { @apply grid grid-rows-[0fr] overflow-hidden transition-[grid-template-rows] duration-200 ease-out; }
+  .game-nav-submenu > div { @apply min-h-0 overflow-hidden pl-3; }
+  .game-nav-group:hover .game-nav-submenu, .game-nav-group:focus-within .game-nav-submenu { @apply grid-rows-[1fr]; }
+  .game-nav-group:hover .game-nav-chevron, .game-nav-group:focus-within .game-nav-chevron { @apply rotate-90; }
+  .sidebar nav .game-nav-submenu a { @apply my-1 block border border-[color-mix(in_srgb,var(--game-color)_42%,var(--line))] border-l-3 border-l-[var(--game-color)] bg-[color-mix(in_srgb,var(--game-color)_12%,var(--surface))] px-3 py-2.5 text-[13px]; }
+  .sidebar nav .game-nav-submenu a:hover { @apply bg-[color-mix(in_srgb,var(--game-color)_20%,var(--surface))] text-[var(--text)]; }
+  .sidebar nav .game-nav-submenu a.active { @apply bg-[color-mix(in_srgb,var(--game-color)_24%,var(--surface))] text-[var(--text)] shadow-sm; }
+  .game-nav-card { @apply flex min-w-0 items-center justify-between gap-2; }
+  .game-nav-card strong { @apply min-w-0 leading-tight font-semibold; }
+  .game-nav-card small { @apply shrink-0 rounded-md bg-[color-mix(in_srgb,var(--game-color)_22%,var(--surface))] px-1.5 py-0.5 text-[10px] font-bold text-[var(--game-color)]; }
+  .sidebar-footer { @apply mt-auto grid gap-3; }
+  .sidebar-backup-link { @apply flex items-center gap-3 rounded-[10px] p-3 font-semibold text-[var(--muted)] no-underline; }
+  .sidebar-backup-link:hover, .sidebar-backup-link.active { @apply bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-[var(--accent)]; }
+  .theme { @apply cursor-pointer; }
+  .language-switcher { @apply flex gap-1 rounded-lg bg-[var(--surface-2)] p-1; }
+  .language-switcher button { @apply flex-1 cursor-pointer rounded-md border-0 bg-transparent px-2 py-1.5 text-[10px] font-bold text-[var(--muted)]; }
+  .language-switcher button.active { @apply bg-[var(--surface)] text-[var(--accent)] shadow-sm; }
+
+  .main { @apply ml-61; }
+  .topbar { @apply sticky top-0 z-4 flex h-18.5 items-center justify-between border-b border-[var(--line)] bg-[color-mix(in_srgb,var(--surface)_92%,transparent)] px-9 py-3.5; }
+  .topbar label, .search { @apply flex items-center gap-2.5 rounded-[10px] bg-[var(--surface-2)] px-3.5 py-2.5 text-[var(--muted)]; }
+  .topbar input, .search input { @apply w-[min(360px,50vw)] border-0 bg-transparent text-[var(--text)] outline-0; }
+  .status-dot { @apply text-xs text-[var(--muted)]; }
+  .status-dot::before { content:''; @apply mr-1.5 inline-block size-1.75 rounded-full bg-[#3aaf82]; }
+  .topbar-status { @apply flex items-center gap-3; }
+  .backup-shortcut { @apply flex items-center gap-1.5 rounded-lg border border-[var(--line)] bg-[var(--surface-2)] px-2.5 py-2 text-xs font-semibold text-[var(--muted)] no-underline; }
+  .backup-shortcut.active, .backup-shortcut:hover { @apply text-[var(--accent)]; }
+  main { @apply mx-auto max-w-360 px-9 pt-10 pb-20; }
+
+  .page-head { @apply mb-7 flex justify-between gap-5; }
+  .dex-page-head { @apply sticky top-18.5 z-3 rounded-b-xl border-b border-[var(--line)] bg-[color-mix(in_srgb,var(--bg)_92%,transparent)] py-4 backdrop-blur-md; }
+  .page-head h1 { @apply my-1 text-[32px] font-bold tracking-[-1px]; }
+  .page-head p, .section-title p { @apply m-0 text-[var(--muted)]; }
+  .eyebrow { @apply text-[11px] font-bold tracking-[1.5px] text-[var(--accent)]; }
+  .page-head-side { @apply flex min-w-80 flex-col items-stretch gap-3; }
+  .dex-progress-summary { @apply rounded-xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3; }
+  .dex-progress-summary > div:first-child { @apply mb-2 flex items-center justify-between gap-5; }
+  .dex-progress-summary span { @apply text-xs font-semibold text-[var(--muted)]; }
+  .dex-progress-summary strong { @apply text-sm text-[var(--text)]; }
+  .dex-progress-summary small { @apply mt-1.5 block text-right text-[10px] font-semibold text-[var(--accent)]; }
+  .cards { @apply grid grid-cols-3 gap-4.5; }
+  .progress-card, .panel, .pokemon-box, .game-cards a { @apply rounded-[15px] border border-[var(--line)] bg-[var(--surface)]; }
+  .progress-card { @apply p-5.5; }
+  .progress-card > div:first-child { @apply flex justify-between text-[var(--muted)]; }
+  .progress-card strong { @apply text-[var(--text)]; }
+  .progress-card h3 { @apply my-4.5 text-[27px]; }
+  .progress-card small { @apply font-medium text-[var(--muted)]; }
+  .progress-track { @apply h-1.75 overflow-hidden rounded-full bg-[var(--surface-2)]; }
+  .progress-fill { @apply h-full rounded-full bg-[var(--accent)]; }
+  .panel { @apply mt-5 p-6; }
+  .section-title h2 { @apply mt-0 mb-1; }
+  .game-progress { @apply mt-6.5 grid gap-5.5; }
+  .game-progress > div > div:first-child { @apply mb-2 flex justify-between text-[13px] text-[var(--muted)]; }
+  .game-badge { --badge-color:#777; @apply inline-flex rounded-full border px-2 py-1 text-[11px] font-bold; color:var(--badge-color); border-color:color-mix(in srgb,var(--badge-color) 50%,var(--line)); background:color-mix(in srgb,var(--badge-color) 9%,var(--surface)); }
+
+  .filters { @apply mb-5 flex flex-wrap justify-between gap-3.5; }
+  .segmented { @apply flex rounded-[10px] bg-[var(--surface-2)] p-1; }
+  .dex-section-selector { @apply mx-auto flex-wrap justify-center; }
+  .dex-title-row { @apply mt-1 flex items-center gap-3; }
+  .dex-title-row h1 { @apply m-0; }
+  .game-logo { @apply grid size-12 shrink-0 place-items-center overflow-hidden rounded-lg border border-[var(--line)] bg-white p-1 shadow-sm; }
+  .game-logo img { @apply max-h-full max-w-full object-contain; }
+  .segmented button, .toggle-row button { @apply cursor-pointer rounded-[7px] border-0 bg-transparent px-3 py-1.75 text-[var(--muted)] transition-all duration-200 ease-out; }
+  .segmented button:hover, .toggle-row button:hover { @apply text-[var(--text)]; }
+  .segmented button.active, .toggle-row button.active { @apply bg-[var(--surface)] text-[var(--accent)] shadow-sm; animation:segment-select 180ms ease-out; }
+
+  .pokemon-box { @apply mb-5.5 overflow-hidden; content-visibility: auto; contain-intrinsic-size: 460px; }
+  .pokemon-box > header { @apply grid grid-cols-[1fr_auto_1fr] items-center border-b border-[var(--line)] px-5 py-3.5; }
+  .pokemon-box > header h2 { @apply m-0 truncate text-[13px] tracking-[1.2px]; }
+  .pokemon-box > header span { @apply text-xs text-[var(--muted)]; }
+  .pokemon-box > header .box-range { @apply font-bold tracking-[.4px] text-[var(--accent)]; }
+  .box-actions { @apply justify-self-end flex gap-1.5; }
+  .dex-actions { @apply flex items-end gap-2 self-end; }
+  .box-actions button, .dex-actions button { @apply flex cursor-pointer items-center gap-1 rounded-[7px] border border-[var(--line)] bg-[var(--surface-2)] px-2.5 py-1.5 text-[11px] font-bold text-[var(--text)]; }
+  .box-actions button:hover, .dex-actions button:hover { @apply border-[var(--accent)] text-[var(--accent)]; }
+  .box-actions button.danger:hover, .dex-actions button.danger:hover { @apply border-[#d45b64] text-[#d45b64]; }
+  .pokemon-grid { @apply grid grid-cols-6 gap-px bg-[var(--line)]; }
+  .pokemon-slot { @apply relative flex min-h-32 cursor-pointer flex-col items-center border-0 bg-[var(--surface)] px-1 py-2.5 text-[var(--text)] transition-colors; }
+  .pokemon-slot:hover { @apply bg-[var(--surface-2)]; }
+  .pokemon-slot.missing { @apply bg-[color-mix(in_srgb,var(--surface-2)_55%,var(--surface))]; }
+  .pokemon-slot strong { @apply max-w-full overflow-hidden text-[11px] text-ellipsis whitespace-nowrap; }
+  .pokemon-slot small { @apply text-[9px] text-[var(--muted)]; }
+  .dex-number { @apply absolute top-1.5 left-1.5 text-[9px] text-[var(--muted)]; }
+  .quantity { @apply absolute top-1.5 right-1.5 text-[10px] font-bold text-[var(--accent)]; }
+  .pokemon-sprite { @apply size-19.5 object-contain; }
+  .pokemon-sprite.dim { @apply opacity-25 grayscale; }
+
+  .drawer-backdrop { @apply fixed inset-0 z-20 bg-[#10131b66]; }
+  .details { @apply absolute top-0 right-0 h-full w-[min(440px,100%)] overflow-auto bg-[var(--surface)] p-7 shadow-[-12px_0_40px_#0002]; }
+  .close { @apply absolute top-5 right-5 grid size-9.5 place-items-center rounded-full border-0 bg-[var(--surface-2)] text-[var(--text)]; }
+  .details-hero { @apply flex items-center gap-4.5 border-b border-[var(--line)] pt-2 pr-12 pb-5; }
+  .details-hero .pokemon-sprite { @apply size-27.5; }
+  .details-heading { @apply min-w-0; }
+  .dex-labels { @apply mb-2 flex flex-col items-start gap-1; }
+  .details-hero .dex-label-current { @apply block rounded-md border px-2 py-1 text-xs font-bold text-[var(--accent)]; border-color:color-mix(in srgb,var(--accent) 25%,transparent); background:color-mix(in srgb,var(--accent) 12%,transparent); }
+  .details-hero .dex-label-national { @apply block pl-0.5 text-[11px] font-semibold text-[var(--muted)]; }
+  .details-hero span, .details-hero p { @apply m-0 text-[var(--muted)]; }
+  .details-hero h2 { @apply my-0.5 text-3xl; }
+  .stat-row { @apply my-5.5 grid grid-cols-4 gap-2; }
+  .stat-row div { @apply rounded-[10px] bg-[var(--surface-2)] px-1 py-3 text-center; }
+  .stat-row strong, .stat-row span { @apply block; }
+  .stat-row span { @apply text-[10px] text-[var(--muted)]; }
+  .details section { @apply my-6; }
+  .details section h3 { @apply text-[13px] tracking-[1px] uppercase; }
+  .badges { @apply flex flex-wrap gap-1.5; }
+  .details label { @apply my-2.5 grid gap-1 text-xs text-[var(--muted)]; }
+  .details select { @apply rounded-lg border border-[var(--line)] bg-[var(--surface)] p-2.5 text-[var(--text)]; }
+  .toggle-row { @apply my-3 flex gap-2; }
+  .toggle-row button { @apply bg-[var(--surface-2)]; }
+  .primary { @apply flex w-full cursor-pointer justify-center gap-2 rounded-lg border-0 bg-[var(--accent)] p-3 text-white; }
+  .primary:disabled { @apply cursor-not-allowed opacity-50; }
+  .entry-list { @apply grid gap-2; }
+  .entry { @apply flex items-center justify-between rounded-lg border border-[var(--line)] p-2; }
+  .entry > div:first-child, .entry > div:last-child { @apply flex items-center gap-2; }
+  .entry small { @apply text-[var(--muted)]; }
+  .entry button { @apply size-7 rounded-md border-0 bg-[var(--surface-2)] text-[var(--text)]; }
+  .entry .entry-meta { @apply min-w-0 flex-1 flex-wrap; }
+  .entry-game { @apply flex flex-col items-start gap-0.5; }
+  .entry-game small { @apply text-[9px] font-semibold; }
+  .entry-toggles { @apply flex flex-wrap gap-1; }
+  .entry .entry-form { @apply m-0 flex items-center gap-1 rounded-md bg-[var(--surface-2)] px-2 py-1 text-[10px] font-semibold text-[var(--muted)]; }
+  .entry .entry-form select { @apply max-w-28 cursor-pointer border-0 bg-transparent p-0 text-[10px] font-semibold text-[var(--text)] outline-none; }
+  .entry .entry-origin select { @apply max-w-18; }
+  .entry .entry-toggles button { @apply h-auto w-auto cursor-pointer px-2 py-1 text-[10px] font-semibold text-[var(--muted)] transition-all duration-200; }
+  .entry .entry-toggles button.active { @apply bg-[color-mix(in_srgb,var(--accent)_14%,var(--surface-2))] text-[var(--accent)]; }
+  .entry .entry-toggles button.shiny { @apply bg-[#d39b2020] text-[#d9a72e]; }
+
+  .confirm-backdrop { @apply fixed inset-0 z-100 grid min-h-dvh w-screen place-items-center bg-[#080a0dcc] p-4 backdrop-blur-sm; }
+  .confirm-dialog { @apply relative w-full max-w-105 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-6 shadow-2xl; }
+  .confirm-close { @apply absolute top-4 right-4 grid size-8 cursor-pointer place-items-center rounded-full border-0 bg-[var(--surface-2)] text-[var(--muted)]; }
+  .confirm-close:hover { @apply text-[var(--text)]; }
+  .confirm-icon { @apply mb-4 grid size-11 place-items-center rounded-xl bg-[#d45b641a] text-[#e16b74]; }
+  .confirm-copy > span { @apply text-[10px] font-bold tracking-[1.4px] text-[#e16b74] uppercase; }
+  .confirm-copy h2 { @apply mt-1 mb-2 text-xl; }
+  .confirm-copy p { @apply m-0 leading-6 text-[var(--muted)]; }
+  .confirm-actions { @apply mt-6 flex justify-end gap-2; }
+  .confirm-actions button { @apply cursor-pointer rounded-lg border border-[var(--line)] bg-[var(--surface-2)] px-4 py-2 text-sm font-bold text-[var(--text)]; }
+  .confirm-actions .confirm-danger { @apply border-[#d45b64] bg-[#d45b64] text-white; }
+  .confirm-actions .confirm-danger:hover { @apply bg-[#bf4b54]; }
+
+  .game-cards { @apply grid grid-cols-2 gap-4.5; }
+  .game-cards a { @apply p-6 text-[var(--text)] no-underline; }
+  .game-cards a p { @apply text-[var(--muted)]; }
+  .game-cards a > span:last-child { @apply font-semibold text-[var(--accent)]; }
+  .empty { @apply p-15 text-center text-[var(--muted)]; }
+  .backup-grid { @apply grid grid-cols-2 gap-5; }
+  .backup-card { @apply mt-0; }
+  .backup-card h2 { @apply mb-2; }
+  .backup-card p, .backup-preview p { @apply text-[var(--muted)]; }
+  .backup-icon { @apply grid size-11 place-items-center rounded-xl bg-[color-mix(in_srgb,var(--accent)_13%,var(--surface-2))] text-[var(--accent)]; }
+  .secondary-action { @apply flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-[var(--line)] bg-[var(--surface-2)] px-4 py-3 font-semibold text-[var(--text)]; }
+  .backup-preview { @apply flex items-center justify-between gap-5; }
+  .backup-preview h2 { @apply mt-1 mb-0; }
+  .backup-preview-actions { @apply flex flex-wrap justify-end gap-2; }
+  .notice { @apply my-5 flex items-center gap-2 rounded-xl border px-4 py-3 text-sm font-semibold; }
+  .notice.error { @apply border-[#d45b6466] bg-[#d45b6414] text-[#e16b74]; }
+  .notice.success { @apply border-[#3aaf8266] bg-[#3aaf8214] text-[#55c99b]; }
+  .toast { @apply fixed right-5 bottom-5 z-100 flex max-w-[min(390px,calc(100vw-32px))] items-center gap-2 rounded-xl border bg-[var(--surface)] px-4 py-3 text-sm font-semibold shadow-2xl; }
+  .toast.success { @apply border-[#3aaf8266] text-[#55c99b]; }
+  .toast.error { @apply border-[#d45b6466] text-[#e16b74]; }
+  .toast span { @apply flex-1 text-[var(--text)]; }
+  .toast button { @apply grid size-7 cursor-pointer place-items-center rounded-md border-0 bg-[var(--surface-2)] text-[var(--muted)]; }
+  .toast .toast-action { @apply h-auto w-auto px-2 py-1 text-[var(--accent)]; }
+  .onboarding-backdrop { @apply fixed inset-0 z-110 grid min-h-dvh w-screen place-items-center bg-[#080a0dcc] p-4 backdrop-blur-sm; }
+  .onboarding-dialog { @apply relative w-full max-w-125 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-7 shadow-2xl; }
+  .onboarding-close { @apply absolute top-4 right-4 grid size-8 cursor-pointer place-items-center rounded-full border-0 bg-[var(--surface-2)] text-[var(--muted)]; }
+  .onboarding-close:hover { @apply text-[var(--text)]; }
+  .onboarding-progress { @apply mb-7 flex justify-between text-[10px] font-bold tracking-[1.4px] text-[var(--accent)]; }
+  .onboarding-icon { @apply mb-5 grid size-14 place-items-center rounded-2xl bg-[color-mix(in_srgb,var(--accent)_14%,var(--surface-2))] text-[var(--accent)]; }
+  .onboarding-dialog h2 { @apply mb-2 text-2xl; }
+  .onboarding-dialog p { @apply m-0 min-h-18 leading-6 text-[var(--muted)]; }
+  .onboarding-dots { @apply mt-6 flex gap-1.5; }
+  .onboarding-dots button { @apply size-2 cursor-pointer rounded-full border-0 bg-[var(--line)] p-0; }
+  .onboarding-dots button.active { @apply w-6 bg-[var(--accent)]; }
+  .onboarding-actions { @apply mt-7 flex items-center justify-between gap-3; }
+  .onboarding-skip { @apply cursor-pointer border-0 bg-transparent px-0 py-2 text-sm font-semibold text-[var(--muted)]; }
+  .onboarding-skip:hover { @apply text-[var(--text)]; }
+  .onboarding-next { @apply w-auto px-5; }
+  .scroll-top { @apply pointer-events-none fixed right-6 bottom-6 z-15 grid size-11 translate-y-3 cursor-pointer place-items-center rounded-full border border-[var(--line)] bg-[var(--surface)] text-[var(--accent)] opacity-0 shadow-xl transition-all duration-200; }
+  .scroll-top.visible { @apply pointer-events-auto translate-y-0 opacity-100; }
+  .scroll-top:hover { @apply -translate-y-1 border-[var(--accent)] bg-[var(--accent)] text-white; }
+  .mobile-nav { @apply hidden; }
+}
+
+@media (max-width: 760px) {
+  .sidebar { @apply hidden; }
+  .main { @apply ml-0; }
+  .topbar { @apply h-15.5 px-3.5 py-2.5; }
+  .status-dot { @apply hidden; }
+  .backup-shortcut span { @apply hidden; }
+  main { @apply px-3.5 pt-6.5 pb-22; }
+  .page-head { @apply flex-col; }
+  .dex-page-head { @apply top-15.5; }
+  .page-head-side { @apply min-w-0 w-full; }
+  .page-head h1 { @apply text-[27px]; }
+  .cards, .game-cards, .backup-grid { @apply grid-cols-1; }
+  .backup-preview { @apply flex-col items-start; }
+  .filters { @apply flex-col; }
+  .segmented button { @apply flex-1; }
+  .pokemon-grid { @apply grid-cols-3; }
+  .pokemon-slot { @apply min-h-30; }
+  .pokemon-box > header { @apply grid-cols-[1fr_auto] gap-2; }
+  .pokemon-box > header .box-range { @apply justify-self-end; }
+  .box-actions { @apply col-span-2 w-full justify-end; }
+  .dex-actions { @apply self-start flex-wrap; }
+  .scroll-top { @apply right-4 bottom-20; }
+  .toast { @apply right-4 bottom-20; }
+  .mobile-nav { @apply fixed right-0 bottom-0 left-0 z-10 flex justify-around border-t border-[var(--line)] bg-[var(--surface)] px-0.5 pt-1.5 pb-[max(7px,env(safe-area-inset-bottom))]; }
+  .mobile-nav a { @apply flex flex-col items-center gap-0.5 text-[9px] text-[var(--muted)] no-underline; }
+  .mobile-nav a svg { @apply w-5; }
+  .mobile-nav a.active { @apply text-[var(--accent)]; }
+  .stat-row { @apply grid-cols-2; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .segmented button, .toggle-row button { transition:none; animation:none!important; }
+}
