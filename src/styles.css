@@ -197,6 +197,7 @@
   .backup-preview { @apply flex items-center justify-between gap-5; }
   .backup-preview h2 { @apply mt-1 mb-0; }
   .backup-preview-actions { @apply flex flex-wrap justify-end gap-2; }
+  .backup-preview-actions .primary { @apply w-auto; }
   .notice { @apply my-5 flex items-center gap-2 rounded-xl border px-4 py-3 text-sm font-semibold; }
   .notice.error { @apply border-[#d45b6466] bg-[#d45b6414] text-[#e16b74]; }
   .notice.success { @apply border-[#3aaf8266] bg-[#3aaf8214] text-[#55c99b]; }
