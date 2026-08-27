@@ -122,7 +122,8 @@
   .pokemon-slot strong { @apply max-w-full overflow-hidden text-[11px] text-ellipsis whitespace-nowrap; }
   .pokemon-slot small { @apply text-[9px] text-[var(--muted)]; }
   .dex-number { @apply absolute top-1.5 left-1.5 text-[9px] text-[var(--muted)]; }
-  .quantity { @apply absolute top-1.5 right-1.5 text-[10px] font-bold text-[var(--accent)]; }
+  .quantity { @apply absolute right-1.5 bottom-1.5 text-[10px] font-bold text-[var(--accent)]; }
+  .alpha-tag { @apply absolute top-1.5 right-1.5 grid size-6 place-items-center rounded-md border border-[#f43b3b55] bg-[#f43b3b18]; }
   .pokemon-sprite { @apply size-19.5 object-contain; }
   .pokemon-sprite.dim { @apply opacity-25 grayscale; }
 
@@ -147,7 +148,9 @@
   .details label { @apply my-2.5 grid gap-1 text-xs text-[var(--muted)]; }
   .details select { @apply rounded-lg border border-[var(--line)] bg-[var(--surface)] p-2.5 text-[var(--text)]; }
   .toggle-row { @apply my-3 flex gap-2; }
-  .toggle-row button { @apply bg-[var(--surface-2)]; }
+  .toggle-row button { @apply inline-flex items-center gap-1.5 bg-[var(--surface-2)]; }
+  .alpha-icon { @apply block shrink-0 object-contain; }
+  .alpha-selector button { @apply inline-flex items-center gap-1.5; }
   .primary { @apply flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border-0 bg-[var(--accent)] p-3 text-white; }
   .primary:disabled { @apply cursor-not-allowed opacity-50; }
   .entry-list { @apply grid gap-2; }
@@ -163,7 +166,7 @@
   .entry .entry-form { @apply m-0 flex items-center gap-1 rounded-md bg-[var(--surface-2)] px-2 py-1 text-[10px] font-semibold text-[var(--muted)]; }
   .entry .entry-form select { @apply max-w-28 cursor-pointer border-0 bg-transparent p-0 text-[10px] font-semibold text-[var(--text)] outline-none; }
   .entry .entry-origin select { @apply max-w-18; }
-  .entry .entry-toggles button { @apply h-auto w-auto cursor-pointer px-2 py-1 text-[10px] font-semibold text-[var(--muted)] transition-all duration-200; }
+  .entry .entry-toggles button { @apply inline-flex h-auto w-auto cursor-pointer items-center gap-1 px-2 py-1 text-[10px] font-semibold text-[var(--muted)] transition-all duration-200; }
   .entry .entry-toggles button.active { @apply bg-[color-mix(in_srgb,var(--accent)_14%,var(--surface-2))] text-[var(--accent)]; }
   .entry .entry-toggles button.shiny { @apply bg-[#d39b2020] text-[#d9a72e]; }
 

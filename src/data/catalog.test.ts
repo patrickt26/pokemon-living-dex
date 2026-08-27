@@ -50,7 +50,7 @@ describe('generated game dex membership', () => {
   it('requires Hisuian regional forms for the Hisui Dex', () => {
     const pla=games.find(game=>game.id==='pla')!;const hisui=pla.dexSections?.[0];if(!hisui)throw new Error('Hisui Dex section not found');
     expect(hisui.formOverrides?.['species-59']).toBe('form-59-hisui');
-    const arcanine=(formId:string):CollectionEntry=>({id:formId,speciesId:'species-59',formId,gameId:'pla',shiny:false,ownOT:true,quantity:1,createdAt:'2026-01-01',updatedAt:'2026-01-01'});
+    const arcanine=(formId:string):CollectionEntry=>({id:formId,speciesId:'species-59',formId,gameId:'pla',shiny:false,alpha:false,ownOT:true,quantity:1,createdAt:'2026-01-01',updatedAt:'2026-01-01'});
     expect(calculateGameProgress(pla,[arcanine('form-59-default')]).obtained).toBe(0);
     expect(calculateGameProgress(pla,[arcanine('form-59-hisui')]).obtained).toBe(1);
   });
@@ -83,11 +83,12 @@ describe('generated game dex membership', () => {
   });
 
   it('configures FRLG and Legends Z-A with their distinct Dex sections',()=>{
-    const frlg=games.find(game=>game.id==='frlg')!;const za=games.find(game=>game.id==='za')!;
+    const frlg=games.find(game=>game.id==='frlg')!;const pla=games.find(game=>game.id==='pla')!;const za=games.find(game=>game.id==='za')!;
     expect(frlg.dexSections?.map(section=>section.dexSpeciesIds.length)).toEqual([151,386]);
     expect(frlg.dexSpeciesIds).toHaveLength(386);
     expect(za.dexSections?.map(section=>section.dexSpeciesIds.length)).toEqual([232,132]);
     expect(new Set(za.dexSpeciesIds).size).toBe(za.dexSpeciesIds.length);
+    expect(games.filter(game=>game.supportsAlpha).map(game=>game.id)).toEqual([pla.id,za.id]);
   });
 
   it('offers Pokémon GO as a collection game without creating a Game Dex',()=>{

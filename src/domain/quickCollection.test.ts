@@ -1,3 +1,3 @@
 import { describe,expect,it } from 'vitest';import type { CollectionEntry } from './models';import { shouldOpenEntryPicker } from './quickCollection';
-const entry=(changes:Partial<CollectionEntry>={}):CollectionEntry=>({id:'1',speciesId:'species-25',formId:'form-25-default',gameId:'home',originGameId:'home',shiny:false,ownOT:true,quantity:1,createdAt:'x',updatedAt:'x',...changes});
+const entry=(changes:Partial<CollectionEntry>={}):CollectionEntry=>({id:'1',speciesId:'species-25',formId:'form-25-default',gameId:'home',originGameId:'home',shiny:false,ownOT:true,quantity:1,createdAt:'x',updatedAt:'x',...changes,alpha:changes.alpha??false});
 describe('quick collection editing',()=>{it('opens the picker only when copies have different origins',()=>{expect(shouldOpenEntryPicker([entry({quantity:2}),entry({id:'2',originGameId:'go',gameId:'go'})])).toBe(true);expect(shouldOpenEntryPicker([entry({quantity:2})])).toBe(false)})});

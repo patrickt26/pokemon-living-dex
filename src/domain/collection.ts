@@ -1,12 +1,13 @@
-import type { CollectionEntry, EntrySummary, FormId, Game, OtFilter, Progress, SpeciesId } from './models';
+import type { AlphaFilter, CollectionEntry, EntrySummary, FormId, Game, OtFilter, Progress, SpeciesId } from './models';
 
-export function filterEntries(entries: CollectionEntry[], options: { shinyOnly?: boolean; ot?: OtFilter; gameId?: string } = {}) {
-  return entries.filter((entry) => (!options.shinyOnly || entry.shiny) && (!options.gameId || entry.gameId === options.gameId) && (options.ot === undefined || options.ot === 'all' || (options.ot === 'own' ? entry.ownOT : !entry.ownOT)));
+interface EntryFilters { shinyOnly?: boolean; alpha?: AlphaFilter; ot?: OtFilter; gameId?: string }
+export function filterEntries(entries: CollectionEntry[], options: EntryFilters = {}) {
+  return entries.filter((entry) => (!options.shinyOnly || entry.shiny) && (options.alpha === undefined || options.alpha === 'all' || (options.alpha === 'alpha' ? entry.alpha : !entry.alpha)) && (!options.gameId || entry.gameId === options.gameId) && (options.ot === undefined || options.ot === 'all' || (options.ot === 'own' ? entry.ownOT : !entry.ownOT)));
 }
-export function isSpeciesOwned(entries: CollectionEntry[], speciesId: SpeciesId, options: { shinyOnly?: boolean; ot?: OtFilter; gameId?: string } = {}) {
+export function isSpeciesOwned(entries: CollectionEntry[], speciesId: SpeciesId, options: EntryFilters = {}) {
   return filterEntries(entries, options).some((entry) => entry.speciesId === speciesId && entry.quantity > 0);
 }
-export function isFormOwned(entries: CollectionEntry[], formId: FormId, options: { shinyOnly?: boolean; ot?: OtFilter; gameId?: string } = {}) {
+export function isFormOwned(entries: CollectionEntry[], formId: FormId, options: EntryFilters = {}) {
   return filterEntries(entries, options).some((entry) => entry.formId === formId && entry.quantity > 0);
 }
 export function hasMultipleOrigins(entries: CollectionEntry[]) {
@@ -23,7 +24,7 @@ export function summarizeEntries(entries: CollectionEntry[]): EntrySummary {
     return summary;
   }, { total: 0, ownOT: 0, otherOT: 0, shiny: 0, byGame: {} });
 }
-export function calculateProgress(speciesIds: SpeciesId[], entries: CollectionEntry[], options: { shinyOnly?: boolean; ot?: OtFilter; gameId?: string } = {}): Progress {
+export function calculateProgress(speciesIds: SpeciesId[], entries: CollectionEntry[], options: EntryFilters = {}): Progress {
   const obtained = new Set(filterEntries(entries, options).filter((entry) => entry.quantity > 0 && speciesIds.includes(entry.speciesId)).map((entry) => entry.speciesId)).size;
   const total = speciesIds.length;
   return { obtained, total, percentage: total ? Math.round((obtained / total) * 1000) / 10 : 0 };
