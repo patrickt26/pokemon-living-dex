@@ -12,6 +12,7 @@ export interface DexEntry { speciesId: SpeciesId; formId: FormId; gameId?: GameI
 export interface CollectionEntry { id: string; speciesId: SpeciesId; formId: FormId; shiny: boolean; alpha: boolean; gameId: GameId; ownOT: boolean; quantity: number; originGameId?: GameId; createdAt: string; updatedAt: string; }
 export type CollectionEntryInput = Omit<CollectionEntry, 'id' | 'createdAt' | 'updatedAt' | 'alpha'> & { alpha?: boolean };
 export type OtFilter = 'all' | 'own' | 'other';
+export type ShinyFilter = 'all' | 'shiny' | 'regular';
 export type AlphaFilter = 'all' | 'alpha' | 'regular';
 export type OwnershipFilter = 'all' | 'owned' | 'missing';
 export interface EntrySummary { total: number; ownOT: number; otherOT: number; shiny: number; byGame: Record<GameId, number>; }

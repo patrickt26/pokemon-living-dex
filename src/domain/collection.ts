@@ -1,8 +1,8 @@
-import type { AlphaFilter, CollectionEntry, EntrySummary, FormId, Game, OtFilter, Progress, SpeciesId } from './models';
+import type { AlphaFilter, CollectionEntry, EntrySummary, FormId, Game, OtFilter, Progress, ShinyFilter, SpeciesId } from './models';
 
-interface EntryFilters { shinyOnly?: boolean; alpha?: AlphaFilter; ot?: OtFilter; gameId?: string }
+interface EntryFilters { shiny?: ShinyFilter; shinyOnly?: boolean; alpha?: AlphaFilter; ot?: OtFilter; gameId?: string }
 export function filterEntries(entries: CollectionEntry[], options: EntryFilters = {}) {
-  return entries.filter((entry) => (!options.shinyOnly || entry.shiny) && (options.alpha === undefined || options.alpha === 'all' || (options.alpha === 'alpha' ? entry.alpha : !entry.alpha)) && (!options.gameId || entry.gameId === options.gameId) && (options.ot === undefined || options.ot === 'all' || (options.ot === 'own' ? entry.ownOT : !entry.ownOT)));
+  return entries.filter((entry) => (options.shiny === undefined ? !options.shinyOnly || entry.shiny : options.shiny === 'all' || (options.shiny === 'shiny' ? entry.shiny : !entry.shiny)) && (options.alpha === undefined || options.alpha === 'all' || (options.alpha === 'alpha' ? entry.alpha : !entry.alpha)) && (!options.gameId || entry.gameId === options.gameId) && (options.ot === undefined || options.ot === 'all' || (options.ot === 'own' ? entry.ownOT : !entry.ownOT)));
 }
 export function isSpeciesOwned(entries: CollectionEntry[], speciesId: SpeciesId, options: EntryFilters = {}) {
   return filterEntries(entries, options).some((entry) => entry.speciesId === speciesId && entry.quantity > 0);
@@ -10,6 +10,7 @@ export function isSpeciesOwned(entries: CollectionEntry[], speciesId: SpeciesId,
 export function isFormOwned(entries: CollectionEntry[], formId: FormId, options: EntryFilters = {}) {
   return filterEntries(entries, options).some((entry) => entry.formId === formId && entry.quantity > 0);
 }
+export function shouldUseShinySprite(entries:CollectionEntry[],shiny:ShinyFilter){return shiny==='shiny'||(shiny==='all'&&entries.some(entry=>entry.shiny))}
 export function hasMultipleOrigins(entries: CollectionEntry[]) {
   const total = entries.reduce((sum, entry) => sum + entry.quantity, 0);
   const origins = new Set(entries.map((entry) => entry.originGameId ?? entry.gameId));
