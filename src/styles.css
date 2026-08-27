@@ -122,8 +122,10 @@
   .pokemon-slot strong { @apply max-w-full overflow-hidden text-[11px] text-ellipsis whitespace-nowrap; }
   .pokemon-slot small { @apply text-[9px] text-[var(--muted)]; }
   .dex-number { @apply absolute top-1.5 left-1.5 text-[9px] text-[var(--muted)]; }
-  .quantity { @apply absolute right-1.5 bottom-1.5 text-[10px] font-bold text-[var(--accent)]; }
+  .quantity { @apply absolute bottom-1.5 left-1.5 text-[10px] font-bold text-[var(--accent)]; }
   .alpha-tag { @apply absolute top-1.5 right-1.5 grid size-6 place-items-center rounded-md border border-[#f43b3b55] bg-[#f43b3b18]; }
+  .shiny-tag { @apply absolute top-1.5 right-1.5 grid size-6 place-items-center rounded-md border border-[#d39b2055] bg-[#d39b2018] text-sm; }
+  .alpha-tag.below-shiny { @apply top-8; }
   .pokemon-sprite { @apply size-19.5 object-contain; }
   .pokemon-sprite.dim { @apply opacity-25 grayscale; }
 
