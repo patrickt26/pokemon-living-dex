@@ -8,7 +8,7 @@ import { OnboardingTour } from './OnboardingTour';
 import { ScrollToTop } from './ScrollToTop';
 import { ToastHost } from './ToastHost';
 
-const links = [['/', 'Dashboard', LayoutDashboard, 'dashboard'], ['/national', 'National Dex', Boxes, 'nationalDex'], ['/regional', 'Regional Forms', Map, 'regionalForms'], ['/forms', 'Special Forms', Shapes, 'specialForms']] as const;
+const links = [['/', 'Dashboard', LayoutDashboard, 'dashboard'], ['/national', 'National Dex', Boxes, 'nationalDex'], ['/regional', 'Regional Forms', Map, 'regionalForms'], ['/forms', 'Variants', Shapes, 'specialForms']] as const;
 const mobileLinks = [...links, ['/games', 'Game Dexes', Gamepad2, 'gameDexes'] as const];
 
 export function AppShell() {

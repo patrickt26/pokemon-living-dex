@@ -1,4 +1,5 @@
 import type { FormGroup, Game, PokemonForm, Species } from '../domain/models';
+import { isStandardVariantAlias } from '../domain/variantForms';
 import { generatedSpecies } from './generatedSpecies';
 import { generatedGameDexes } from './generatedGameDexes';
 
@@ -24,9 +25,10 @@ const specialForms: PokemonForm[] = [
   ...unownNames.map((name)=>{const slug=name.toLowerCase().replace('!','exclamation').replace('?','question');return alt(201,slug,name,201,{sprite:unownSprite(slug),shinySprite:unownSprite(slug,true),formGroupIds:['unown']})}),
   ...['Normal','Heat','Wash','Frost','Fan','Mow'].map((name,index)=>alt(479,name.toLowerCase(),name,index === 0 ? 479 : 10007 + index,{formGroupIds:['rotom']})),
   ...['Natural','Heart','Star','Diamond','Debutante','Matron','Dandy','La Reine','Kabuki','Pharaoh'].map((name)=>alt(676,name.toLowerCase().replaceAll(' ','-'),name,676,{formGroupIds:['furfrou']})),
-  ...[669,670,671].flatMap((number)=>['Red','Yellow','Orange','Blue','White'].map((name)=>{const slug=name.toLowerCase();return alt(number,slug,name,number,{sprite:formSprite(number,slug),shinySprite:formSprite(number,slug,true),formGroupIds:['flabebe-line']})})),
-  alt(670,'eternal','Eternal',10061,{sprite:sprite(10061),shinySprite:sprite(10061,true),formGroupIds:['flabebe-line']})
-];
+  ...[669,670].flatMap((number)=>['Red','Yellow','Orange','Blue','White'].map((name)=>{const slug=name.toLowerCase();return alt(number,slug,name,number,{sprite:formSprite(number,slug),shinySprite:formSprite(number,slug,true),formGroupIds:['flabebe-line']})})),
+  alt(670,'eternal','Eternal',10061,{sprite:sprite(10061),shinySprite:sprite(10061,true),formGroupIds:['flabebe-line']}),
+  ...['Red','Yellow','Orange','Blue','White'].map((name)=>{const slug=name.toLowerCase();return alt(671,slug,name,671,{sprite:formSprite(671,slug),shinySprite:formSprite(671,slug,true),formGroupIds:['flabebe-line']})})
+].filter(form=>!isStandardVariantAlias(form.id));
 export const forms = [...baseForms, ...regionalForms, ...specialForms];
 export const formGroups: FormGroup[] = [
   {id:'unown',name:'Unown Alphabet',description:'A–Z, ! and ?',formIds:specialForms.filter(f=>f.formGroupIds?.includes('unown')).map(f=>f.id)},

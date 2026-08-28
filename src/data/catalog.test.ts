@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { calculateGameProgress } from '../domain/collection';
 import type { CollectionEntry } from '../domain/models';
 import { generatedGameDexes } from './generatedGameDexes';
-import { dynamaxAdventureNumbers, forms, games, noDexEntryNumbers } from './catalog';
+import { dynamaxAdventureNumbers, formGroups, forms, games, noDexEntryNumbers } from './catalog';
 
 describe('generated game dex membership', () => {
   it.each([
@@ -76,16 +76,22 @@ describe('generated game dex membership', () => {
     expect(sv.dexSections?.find(section=>section.id==='paldea')?.formOverrides?.['species-194']).toBe('form-194-paldea');
   });
 
-  it('keeps special form groups complete and uses distinct sprites', () => {
+  it('keeps variant groups complete without duplicating their standard forms', () => {
     const unown = forms.filter(form => form.formGroupIds?.includes('unown'));
-    expect(unown).toHaveLength(28);
-    expect(new Set(unown.map(form => form.sprite)).size).toBe(28);
+    expect(unown).toHaveLength(27);
+    expect(new Set(unown.map(form => form.sprite)).size).toBe(27);
+    expect(unown.some(form=>form.name==='A')).toBe(false);
     expect(unown.find(form => form.name === '!')?.sprite).toContain('exclamation');
     expect(unown.find(form => form.name === '?')?.sprite).toContain('question');
 
     const flabebeLine = forms.filter(form => form.formGroupIds?.includes('flabebe-line'));
-    expect(flabebeLine.filter(form => ['Red', 'Yellow', 'Orange', 'Blue', 'White'].includes(form.name))).toHaveLength(15);
+    expect(flabebeLine.filter(form => ['Red', 'Yellow', 'Orange', 'Blue', 'White'].includes(form.name))).toHaveLength(12);
     expect(flabebeLine.some(form => form.speciesId === 'species-670' && form.name === 'Eternal')).toBe(true);
+    const floetteVariants=formGroups.find(group=>group.id==='flabebe-line')!.formIds.filter(id=>id.startsWith('form-670-'));
+    expect(floetteVariants).toEqual(['form-670-yellow','form-670-orange','form-670-blue','form-670-white','form-670-eternal']);
+    expect(forms.filter(form=>['form-479-normal','form-676-natural','form-669-red','form-670-red','form-671-red'].includes(form.id))).toEqual([]);
+    const standardAliases=['form-201-a','form-479-normal','form-676-natural','form-669-red','form-670-red','form-671-red'];
+    expect(formGroups.flatMap(group=>group.formIds).filter(id=>standardAliases.includes(id))).toEqual([]);
   });
 
   it('configures FRLG and Legends Z-A with their distinct Dex sections',()=>{
