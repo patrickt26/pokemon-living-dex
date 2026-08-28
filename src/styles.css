@@ -27,11 +27,11 @@
   .app.dark { --bg:#14171c; --surface:#1c2027; --surface-2:#242932; --text:#f0f1f3; --muted:#959ca8; --line:#303640; --accent:#8c84ff; }
 
   .sidebar { @apply fixed inset-y-0 left-0 z-5 flex w-61 flex-col border-r border-[var(--line)] bg-[var(--surface)] px-4.5 py-7; }
-  .brand { @apply flex items-center gap-3 px-2 pb-7.5; }
+  .brand { @apply flex shrink-0 items-center gap-3 px-2 pb-7.5; }
   .brand > span { @apply grid size-10.5 place-items-center rounded-xl bg-[var(--accent)] font-bold text-white; }
   .brand div { @apply flex flex-col; }
   .brand small { @apply text-[11px] text-[var(--muted)]; }
-  .sidebar nav { @apply grid gap-1; }
+  .sidebar nav { @apply grid min-h-0 flex-1 content-start gap-1 overflow-y-auto pr-1; scrollbar-gutter:stable; overscroll-behavior:contain; }
   .sidebar nav a, .theme { @apply flex items-center gap-3 rounded-[10px] border-0 bg-transparent p-3 font-semibold text-[var(--muted)] no-underline; }
   .sidebar nav a.active { @apply bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-[var(--accent)]; }
   .game-nav-group { @apply grid; }
@@ -48,7 +48,7 @@
   .game-nav-card { @apply flex min-w-0 items-center justify-between gap-2; }
   .game-nav-card strong { @apply min-w-0 leading-tight font-semibold; }
   .game-nav-card small { @apply shrink-0 rounded-md bg-[color-mix(in_srgb,var(--game-color)_22%,var(--surface))] px-1.5 py-0.5 text-[10px] font-bold text-[var(--game-color)]; }
-  .sidebar-footer { @apply mt-auto grid gap-3; }
+  .sidebar-footer { @apply mt-auto grid shrink-0 gap-3 pt-3; }
   .sidebar-backup-link { @apply flex items-center gap-3 rounded-[10px] p-3 font-semibold text-[var(--muted)] no-underline; }
   .sidebar-backup-link:hover, .sidebar-backup-link.active { @apply bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-[var(--accent)]; }
   .theme { @apply cursor-pointer; }
