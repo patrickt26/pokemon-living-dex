@@ -10,7 +10,14 @@ export function isSpeciesOwned(entries: CollectionEntry[], speciesId: SpeciesId,
 export function isFormOwned(entries: CollectionEntry[], formId: FormId, options: EntryFilters = {}) {
   return filterEntries(entries, options).some((entry) => entry.formId === formId && entry.quantity > 0);
 }
-export function shouldUseShinySprite(entries:CollectionEntry[],shiny:ShinyFilter){return shiny==='shiny'||(shiny==='all'&&entries.some(entry=>entry.shiny))}
+export function selectDisplayEntry(entries: CollectionEntry[]) {
+  return entries.reduce<CollectionEntry | undefined>((selected, entry) => {
+    if (entry.quantity <= 0) return selected;
+    const priority = Number(entry.alpha) + Number(entry.shiny) * 2;
+    const selectedPriority = selected ? Number(selected.alpha) + Number(selected.shiny) * 2 : -1;
+    return priority > selectedPriority ? entry : selected;
+  }, undefined);
+}
 export function hasMultipleOrigins(entries: CollectionEntry[]) {
   const total = entries.reduce((sum, entry) => sum + entry.quantity, 0);
   const origins = new Set(entries.map((entry) => entry.originGameId ?? entry.gameId));
