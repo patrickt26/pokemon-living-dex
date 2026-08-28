@@ -93,9 +93,10 @@
   .game-progress > div > div:first-child { @apply mb-2 flex justify-between text-[13px] text-[var(--muted)]; }
   .game-badge { --badge-color:#777; @apply inline-flex rounded-full border px-2 py-1 text-[11px] font-bold; color:var(--badge-color); border-color:color-mix(in srgb,var(--badge-color) 50%,var(--line)); background:color-mix(in srgb,var(--badge-color) 9%,var(--surface)); }
 
-  .filters { @apply mb-5 flex flex-wrap justify-between gap-3.5; }
+  .filters { @apply mb-5 flex flex-wrap items-start justify-between gap-3.5; }
   .segmented { @apply flex rounded-[10px] bg-[var(--surface-2)] p-1; }
-  .dex-section-selector { @apply mx-auto flex-wrap justify-center; }
+  .dex-section-selector { @apply mx-auto basis-full flex-nowrap justify-center overflow-x-auto; scrollbar-width:thin; }
+  .dex-section-selector button { @apply flex-none whitespace-nowrap; }
   .dex-title-row { @apply mt-1 flex items-center gap-3; }
   .dex-title-row h1 { @apply m-0; }
   .dex-page-head > div:first-child > p { @apply mt-3; }
@@ -110,7 +111,7 @@
   .pokemon-box > header h2 { @apply m-0 truncate text-[13px] tracking-[1.2px]; }
   .pokemon-box > header span { @apply text-xs text-[var(--muted)]; }
   .pokemon-box > header .box-range { @apply font-bold tracking-[.4px] text-[var(--accent)]; }
-  .box-actions { @apply justify-self-end flex gap-1.5; }
+  .box-actions { @apply col-start-3 justify-self-end flex gap-1.5; }
   .dex-actions { @apply flex items-end gap-2 self-end; }
   .box-actions button, .dex-actions button { @apply flex cursor-pointer items-center gap-1 rounded-[7px] border border-[var(--line)] bg-[var(--surface-2)] px-2.5 py-1.5 text-[11px] font-bold text-[var(--text)]; }
   .box-actions button:hover, .dex-actions button:hover { @apply border-[var(--accent)] text-[var(--accent)]; }
@@ -247,7 +248,9 @@
   .cards, .game-cards, .backup-grid { @apply grid-cols-1; }
   .backup-preview { @apply flex-col items-start; }
   .filters { @apply flex-col; }
+  .dex-section-selector { @apply w-full justify-start; }
   .segmented button { @apply flex-1; }
+  .dex-section-selector button { @apply flex-none; }
   .pokemon-grid { @apply grid-cols-3; }
   .pokemon-slot { @apply min-h-30; }
   .pokemon-box > header { @apply grid-cols-[1fr_auto] gap-2; }

@@ -22,6 +22,7 @@ export function PokemonDetails({ form, entries, game, onClose }: { form:PokemonF
   const relevant = entries.filter(entry => entry.speciesId === species.id);
   const summary = summarizeEntries(relevant);
   const localDexNumbers = (game?.dexSections ?? []).flatMap(section => {
+    if (section.showDexNumbers === false) return [];
     const index = section.dexSpeciesIds.indexOf(species.id);
     return index < 0 ? [] : [`${section.name} #${String(index + 1).padStart(3, '0')}`];
   });

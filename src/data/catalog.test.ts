@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { calculateGameProgress } from '../domain/collection';
 import type { CollectionEntry } from '../domain/models';
 import { generatedGameDexes } from './generatedGameDexes';
-import { dynamaxAdventureNumbers, forms, games } from './catalog';
+import { dynamaxAdventureNumbers, forms, games, noDexEntryNumbers } from './catalog';
 
 describe('generated game dex membership', () => {
   it.each([
@@ -39,12 +39,18 @@ describe('generated game dex membership', () => {
     expect(sv.dexSpeciesIds.slice(0, generatedGameDexes.paldea.length)).toEqual(generatedGameDexes.paldea.map(number => `species-${number}`));
   });
 
-  it('includes the 47 Dynamax Adventures bosses without gift-only Ultra Beasts', () => {
+  it('separates Dynamax Adventure bosses from the other unnumbered entries', () => {
+    const swsh = games.find(game => game.id === 'swsh')!;
+    const dynamax = swsh.dexSections?.find(candidate => candidate.id === 'dynamax-adventures');
+    const noDex = swsh.dexSections?.find(candidate => candidate.id === 'no-dex-entries');
     expect(dynamaxAdventureNumbers).toHaveLength(47);
-    expect(dynamaxAdventureNumbers).toContain(150);
-    expect(dynamaxAdventureNumbers).toContain(806);
-    expect(dynamaxAdventureNumbers).not.toContain(803);
-    expect(dynamaxAdventureNumbers).not.toContain(804);
+    expect(dynamax).toMatchObject({name:'Dynamax Adventures',showDexNumbers:false});
+    expect(dynamax?.formOverrides).toMatchObject({'species-144':'form-144-default','species-145':'form-145-default','species-146':'form-146-default'});
+    expect(noDexEntryNumbers).toHaveLength(24);
+    expect(noDex).toMatchObject({name:'No Dex Entries',showDexNumbers:false});
+    expect(noDexEntryNumbers).toEqual(expect.arrayContaining([252,260,486,647,722,730,789,790,803,804]));
+    expect([...dynamaxAdventureNumbers,...noDexEntryNumbers].filter(number=>[151,251,385,494,649,719,721,801,802,807,808,809].includes(number))).toEqual([]);
+    expect(swsh.dexSections?.slice(-2).map(section=>section.id)).toEqual(['dynamax-adventures','no-dex-entries']);
   });
 
   it('requires Hisuian regional forms for the Hisui Dex', () => {
