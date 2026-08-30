@@ -4,6 +4,13 @@ interface EntryFilters { shiny?: ShinyFilter; shinyOnly?: boolean; alpha?: Alpha
 export function filterEntries(entries: CollectionEntry[], options: EntryFilters = {}) {
   return entries.filter((entry) => (options.shiny === undefined ? !options.shinyOnly || entry.shiny : options.shiny === 'all' || (options.shiny === 'shiny' ? entry.shiny : !entry.shiny)) && (options.alpha === undefined || options.alpha === 'all' || (options.alpha === 'alpha' ? entry.alpha : !entry.alpha)) && (!options.gameId || entry.gameId === options.gameId) && (options.ot === undefined || options.ot === 'all' || (options.ot === 'own' ? entry.ownOT : !entry.ownOT)));
 }
+export interface CollectionEntryIndex { entries:CollectionEntry[]; bySpeciesId:ReadonlyMap<SpeciesId,CollectionEntry[]>; byFormId:ReadonlyMap<FormId,CollectionEntry[]> }
+export function indexCollectionEntries(entries:CollectionEntry[],options:EntryFilters={}):CollectionEntryIndex {
+  const filtered=filterEntries(entries,options);const bySpeciesId=new Map<SpeciesId,CollectionEntry[]>();const byFormId=new Map<FormId,CollectionEntry[]>();
+  for(const entry of filtered){const speciesEntries=bySpeciesId.get(entry.speciesId)??[];speciesEntries.push(entry);bySpeciesId.set(entry.speciesId,speciesEntries);const formEntries=byFormId.get(entry.formId)??[];formEntries.push(entry);byFormId.set(entry.formId,formEntries)}
+  return {entries:filtered,bySpeciesId,byFormId};
+}
+export function getIndexedEntries(index:CollectionEntryIndex,speciesId:SpeciesId,formId:FormId,collectBySpecies=false){return collectBySpecies?(index.bySpeciesId.get(speciesId)??[]):(index.byFormId.get(formId)??[])}
 export function isSpeciesOwned(entries: CollectionEntry[], speciesId: SpeciesId, options: EntryFilters = {}) {
   return filterEntries(entries, options).some((entry) => entry.speciesId === speciesId && entry.quantity > 0);
 }
@@ -33,7 +40,8 @@ export function summarizeEntries(entries: CollectionEntry[]): EntrySummary {
   }, { total: 0, ownOT: 0, otherOT: 0, shiny: 0, byGame: {} });
 }
 export function calculateProgress(speciesIds: SpeciesId[], entries: CollectionEntry[], options: EntryFilters = {}): Progress {
-  const obtained = new Set(filterEntries(entries, options).filter((entry) => entry.quantity > 0 && speciesIds.includes(entry.speciesId)).map((entry) => entry.speciesId)).size;
+  const speciesIdSet=new Set(speciesIds);
+  const obtained = new Set(filterEntries(entries, options).filter((entry) => entry.quantity > 0 && speciesIdSet.has(entry.speciesId)).map((entry) => entry.speciesId)).size;
   const total = speciesIds.length;
   return { obtained, total, percentage: total ? Math.round((obtained / total) * 1000) / 10 : 0 };
 }

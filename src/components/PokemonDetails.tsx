@@ -15,11 +15,11 @@ export function PokemonDetails({ form, entries, game, onClose }: { form:PokemonF
   const { t } = useI18n();
   const panelRef=useRef<HTMLElement>(null);
   useEffect(()=>{panelRef.current?.focus();const close=(event:KeyboardEvent)=>{if(event.key==='Escape')onClose()};document.addEventListener('keydown',close);return()=>document.removeEventListener('keydown',close)},[onClose]);
-  const species = pokemonDataSource.getSpecies().find(candidate => candidate.id === form.speciesId)!;
+  const species = pokemonDataSource.getSpeciesById().get(form.speciesId)!;
   const games = pokemonDataSource.getGames();
   const availableGames = games.filter(candidate => candidate.id === 'home' || candidate.dexSpeciesIds.includes(species.id));
   const alphaEligible = isAlphaEligibleSpecies(games,species.id);
-  const forms = pokemonDataSource.getForms().filter(candidate => candidate.speciesId === species.id);
+  const forms = pokemonDataSource.getFormsBySpeciesId().get(species.id)??[];
   const relevant = entries.filter(entry => entry.speciesId === species.id);
   const summary = summarizeEntries(relevant);
   const localDexNumbers = (game?.dexSections ?? []).flatMap(section => {
@@ -34,7 +34,7 @@ export function PokemonDetails({ form, entries, game, onClose }: { form:PokemonF
   const [alpha, setAlpha] = useState(false);
   const [selectedForm, setSelectedForm] = useState(form.id);
   useEffect(() => setSelectedForm(form.id), [form.id]);
-  const activeForm = forms.find(candidate => candidate.id === selectedForm) ?? form;
+  const activeForm = pokemonDataSource.getFormsById().get(selectedForm) ?? form;
   const showAlpha = alphaEligible && (!game || game.supportsAlpha === true);
   const addOne = () => add.mutate({ speciesId:species.id, formId:activeForm.id, gameId, ownOT, shiny, alpha:showAlpha&&alpha, quantity:1 });
 

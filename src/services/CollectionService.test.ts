@@ -1,15 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import type { CollectionEntry, CollectionEntryInput } from '../domain/models';
-import type { CollectionRepository } from '../repositories/CollectionRepository';
+import type { CollectionBatch, CollectionRepository } from '../repositories/CollectionRepository';
 import { CollectionService } from './CollectionService';
 
 class MemoryCollectionRepository implements CollectionRepository {
+  batchCalls=0;
   constructor(public entries:CollectionEntry[]){}
   async getEntries(){return this.entries.map(entry=>({...entry}));}
   async getEntriesBySpecies(speciesId:string){return this.entries.filter(entry=>entry.speciesId===speciesId);}
   async addEntry(input:CollectionEntryInput){const entry:CollectionEntry={...input,alpha:input.alpha??false,id:`entry-${this.entries.length+1}`,createdAt:'2026-01-01',updatedAt:'2026-01-01'};this.entries.push(entry);return entry;}
   async updateEntry(id:string,changes:Partial<CollectionEntryInput>){const index=this.entries.findIndex(entry=>entry.id===id);if(index<0)throw new Error('Not found');const updated={...this.entries[index]!,...changes,updatedAt:'2026-01-02'};this.entries[index]=updated;return updated;}
   async removeEntry(id:string){this.entries=this.entries.filter(entry=>entry.id!==id);}
+  async applyBatch({additions,updates,removals}:CollectionBatch){this.batchCalls+=1;const removed=new Set(removals);const updated=new Map(updates.map(entry=>[entry.id,entry]));this.entries=this.entries.filter(entry=>!removed.has(entry.id)).map(entry=>updated.get(entry.id)??entry);for(const input of additions){const entry:CollectionEntry={...input,alpha:input.alpha??false,id:`batch-${this.entries.length+1}`,createdAt:'2026-01-01',updatedAt:'2026-01-02'};this.entries.push(entry)}}
   async replaceEntries(inputs:CollectionEntryInput[]){this.entries=inputs.map((input,index)=>({...input,alpha:input.alpha??false,id:`replacement-${index}`,createdAt:'2026-01-01',updatedAt:'2026-01-01'}));}
 }
 
@@ -24,4 +26,6 @@ describe('CollectionService.changeOne',()=>{
   it('changes the form of only one copy from an aggregated entry',async()=>{const repository=new MemoryCollectionRepository([{...pikachu,quantity:3}]);const service=new CollectionService(repository);await service.changeOne('own',{formId:'form-25-alternate'});expect(repository.entries).toHaveLength(2);expect(repository.entries.find(entry=>entry.formId==='form-25-default')?.quantity).toBe(2);expect(repository.entries.find(entry=>entry.formId==='form-25-alternate')?.quantity).toBe(1)});
   it('changes the game and origin of only one copy from an aggregated entry',async()=>{const repository=new MemoryCollectionRepository([{...pikachu,quantity:3}]);const service=new CollectionService(repository);await service.changeOne('own',{gameId:'go',originGameId:'go'});expect(repository.entries).toHaveLength(2);expect(repository.entries.find(entry=>entry.gameId==='home')?.quantity).toBe(2);expect(repository.entries.find(entry=>entry.gameId==='go')).toMatchObject({originGameId:'go',quantity:1})});
   it('splits one Alpha copy from a regular aggregated entry',async()=>{const repository=new MemoryCollectionRepository([{...pikachu,quantity:3}]);const service=new CollectionService(repository);await service.changeOne('own',{alpha:true});expect(repository.entries).toHaveLength(2);expect(repository.entries.find(entry=>!entry.alpha)?.quantity).toBe(2);expect(repository.entries.find(entry=>entry.alpha)?.quantity).toBe(1)});
+  it('consolidates a large addition into one repository batch',async()=>{const repository=new MemoryCollectionRepository([{...pikachu,quantity:1}]);const service=new CollectionService(repository);await service.addOrIncrementMany([{...pikachu,quantity:2},{...pikachu,id:'ignored',speciesId:'species-26',formId:'form-26-default',quantity:1},{...pikachu,id:'ignored-again',speciesId:'species-26',formId:'form-26-default',quantity:3}]);expect(repository.batchCalls).toBe(1);expect(repository.entries.find(entry=>entry.speciesId==='species-25')?.quantity).toBe(3);expect(repository.entries.find(entry=>entry.speciesId==='species-26')?.quantity).toBe(4)});
+  it('removes multiple entries in one repository batch',async()=>{const repository=new MemoryCollectionRepository([{...pikachu},{...pikachu,id:'second'}]);const service=new CollectionService(repository);await service.removeMany(['own','second','second']);expect(repository.batchCalls).toBe(1);expect(repository.entries).toEqual([])});
 });

@@ -1,5 +1,6 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { indexCollectionEntries } from '../domain/collection';
 import type { CollectionEntry, PokemonForm, Species } from '../domain/models';
 import { PokemonBox } from './PokemonBox';
 
@@ -13,7 +14,7 @@ afterEach(cleanup);
 describe('PokemonBox form collection',()=>{
   it('shows an owned alternate form when the primary form is missing',()=>{
     const onSelect=vi.fn();
-    render(<PokemonBox title="BOX 01" items={[{species,form:standard,dexNumber:479,collectBySpecies:true}]} entries={[entry(heat)]} forms={[standard,heat]} onSelect={onSelect}/>);
+    render(<PokemonBox title="BOX 01" items={[{species,form:standard,dexNumber:479,collectBySpecies:true}]} entryIndex={indexCollectionEntries([entry(heat)])} formsById={new Map([[standard.id,standard],[heat.id,heat]])} onSelect={onSelect}/>);
 
     expect(screen.getByRole('button',{name:/Rotom, National Dex #479, 1 owned/})).toBeInTheDocument();
     expect(screen.getByRole('img',{name:'Rotom'})).toHaveAttribute('src','heat.png');
@@ -23,7 +24,7 @@ describe('PokemonBox form collection',()=>{
   });
 
   it('keeps the primary form visible when both forms are owned',()=>{
-    render(<PokemonBox title="BOX 01" items={[{species,form:standard,dexNumber:479,collectBySpecies:true}]} entries={[entry(standard),entry(heat,true)]} forms={[standard,heat]} onSelect={vi.fn()}/>);
+    render(<PokemonBox title="BOX 01" items={[{species,form:standard,dexNumber:479,collectBySpecies:true}]} entryIndex={indexCollectionEntries([entry(standard),entry(heat,true)])} formsById={new Map([[standard.id,standard],[heat.id,heat]])} onSelect={vi.fn()}/>);
 
     expect(screen.getByRole('img',{name:'Rotom'})).toHaveAttribute('src','standard.png');
     expect(screen.queryByText('Heat')).not.toBeInTheDocument();

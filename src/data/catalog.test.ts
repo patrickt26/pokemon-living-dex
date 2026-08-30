@@ -3,8 +3,15 @@ import { calculateGameProgress } from '../domain/collection';
 import type { CollectionEntry } from '../domain/models';
 import { generatedGameDexes } from './generatedGameDexes';
 import { dynamaxAdventureNumbers, formGroups, forms, games, noDexEntryNumbers } from './catalog';
+import { pokemonDataSource } from './PokemonDataSource';
 
 describe('generated game dex membership', () => {
+  it('exposes stable catalog indexes for direct lookup',()=>{
+    expect(pokemonDataSource.getSpeciesById().get('species-25')?.name).toBe('Pikachu');
+    expect(pokemonDataSource.getFormsById().get('form-479-heat')?.name).toBe('Heat');
+    expect(pokemonDataSource.getFormsBySpeciesId().get('species-479')?.map(form=>form.id)).toEqual(expect.arrayContaining(['form-479-default','form-479-heat']));
+  });
+
   it.each([
     ['bdspSinnoh', 151], ['galar', 400], ['isleOfArmor', 211], ['crownTundra', 210],
     ['hisui', 242], ['paldea', 400], ['kitakami', 200], ['blueberry', 243],

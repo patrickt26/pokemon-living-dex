@@ -1,6 +1,6 @@
 import { describe,expect,it } from 'vitest';
 import type { CollectionEntry,CollectionEntryInput } from '../domain/models';
-import type { CollectionRepository } from '../repositories/CollectionRepository';
+import type { CollectionBatch,CollectionRepository } from '../repositories/CollectionRepository';
 import { pokemonDataSource } from '../data/PokemonDataSource';
 import { CollectionBackupService } from './CollectionBackupService';
 
@@ -11,6 +11,7 @@ class MemoryRepository implements CollectionRepository{
   async addEntry(input:CollectionEntryInput){const entry:CollectionEntry={...input,alpha:input.alpha??false,id:String(this.entries.length),createdAt:'x',updatedAt:'x'};this.entries.push(entry);return entry}
   async updateEntry(id:string,changes:Partial<CollectionEntryInput>){const entry=this.entries.find(candidate=>candidate.id===id)!;Object.assign(entry,changes);return entry}
   async removeEntry(id:string){this.entries=this.entries.filter(entry=>entry.id!==id)}
+  async applyBatch({additions,updates,removals}:CollectionBatch){const removed=new Set(removals);const updated=new Map(updates.map(entry=>[entry.id,entry]));this.entries=this.entries.filter(entry=>!removed.has(entry.id)).map(entry=>updated.get(entry.id)??entry);for(const input of additions)await this.addEntry(input)}
   async replaceEntries(inputs:CollectionEntryInput[]){this.entries=inputs.map((input,index)=>({...input,alpha:input.alpha??false,id:String(index),createdAt:'x',updatedAt:'x'}))}
 }
 const input:CollectionEntryInput={speciesId:'species-25',formId:'form-25-default',gameId:'home',originGameId:'home',shiny:false,alpha:false,ownOT:true,quantity:2};

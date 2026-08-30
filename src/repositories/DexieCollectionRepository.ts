@@ -1,7 +1,7 @@
 import Dexie, { type EntityTable } from 'dexie';
 import type { CollectionEntry, CollectionEntryInput } from '../domain/models';
 import { normalizeVariantFormId } from '../domain/variantForms';
-import type { CollectionRepository } from './CollectionRepository';
+import type { CollectionBatch, CollectionRepository } from './CollectionRepository';
 
 class LivingDexDatabase extends Dexie {
   entries!: EntityTable<CollectionEntry, 'id'>;
@@ -14,6 +14,13 @@ export class DexieCollectionRepository implements CollectionRepository {
   async addEntry(input:CollectionEntryInput){ const now=new Date().toISOString(); const entry:CollectionEntry={...input,formId:normalizeVariantFormId(input.formId),alpha:input.alpha??false,id:crypto.randomUUID(),createdAt:now,updatedAt:now}; await this.database.entries.add(entry); return entry; }
   async updateEntry(id:string, changes:Partial<CollectionEntryInput>){ const existing=await this.database.entries.get(id); if(!existing) throw new Error('Collection entry not found'); const entry={...existing,...changes,...(changes.formId?{formId:normalizeVariantFormId(changes.formId)}:{}),id,updatedAt:new Date().toISOString()}; await this.database.entries.put(entry); return entry; }
   async removeEntry(id:string){ await this.database.entries.delete(id); }
+  async applyBatch({additions,updates,removals}:CollectionBatch){
+    if(!additions.length&&!updates.length&&!removals.length)return;
+    const now=new Date().toISOString();
+    const added=additions.map(input=>({...input,formId:normalizeVariantFormId(input.formId),alpha:input.alpha??false,id:crypto.randomUUID(),createdAt:now,updatedAt:now}));
+    const updated=updates.map(entry=>({...entry,formId:normalizeVariantFormId(entry.formId),alpha:entry.alpha??false,updatedAt:now}));
+    await this.database.transaction('rw',this.database.entries,async()=>{if(removals.length)await this.database.entries.bulkDelete(removals);if(added.length||updated.length)await this.database.entries.bulkPut([...updated,...added])});
+  }
   async replaceEntries(inputs:CollectionEntryInput[]){
     const now=new Date().toISOString();
     const entries=inputs.map(input=>({...input,formId:normalizeVariantFormId(input.formId),alpha:input.alpha??false,id:crypto.randomUUID(),createdAt:now,updatedAt:now}));
