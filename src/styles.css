@@ -22,9 +22,10 @@
   .app {
     --bg:#f5f6f8; --surface:#fff; --surface-2:#f0f2f5; --text:#22262e;
     --muted:#737b88; --line:#e1e4e9; --accent:#635bdb;
+    color-scheme: light;
     @apply min-h-screen bg-[var(--bg)] text-[var(--text)];
   }
-  .app.dark { --bg:#14171c; --surface:#1c2027; --surface-2:#242932; --text:#f0f1f3; --muted:#959ca8; --line:#303640; --accent:#8c84ff; }
+  .app.dark { --bg:#14171c; --surface:#1c2027; --surface-2:#242932; --text:#f0f1f3; --muted:#959ca8; --line:#303640; --accent:#8c84ff; color-scheme:dark; }
 
   .sidebar { @apply fixed inset-y-0 left-0 z-5 flex w-61 flex-col border-r border-[var(--line)] bg-[var(--surface)] px-4.5 py-7; }
   .brand { @apply flex shrink-0 items-center gap-3 px-2 pb-7.5; }
@@ -177,7 +178,8 @@
   .entry-game small { @apply text-[9px] font-semibold; }
   .entry-toggles { @apply flex flex-wrap gap-1; }
   .entry .entry-form { @apply m-0 flex items-center gap-1 rounded-md bg-[var(--surface-2)] px-2 py-1 text-[10px] font-semibold text-[var(--muted)]; }
-  .entry .entry-form select { @apply max-w-28 cursor-pointer border-0 bg-transparent p-0 text-[10px] font-semibold text-[var(--text)] outline-none; }
+  .entry .entry-form select { @apply max-w-28 cursor-pointer border-0 bg-[var(--surface-2)] p-0 text-[10px] font-semibold text-[var(--text)] outline-none; }
+  .entry .entry-form select option { @apply bg-[var(--surface)] text-[var(--text)]; }
   .entry .entry-origin select { @apply max-w-18; }
   .entry .entry-toggles button { @apply inline-flex h-auto w-auto cursor-pointer items-center gap-1 px-2 py-1 text-[10px] font-semibold text-[var(--muted)] transition-all duration-200; }
   .entry .entry-toggles button.active { @apply bg-[color-mix(in_srgb,var(--accent)_14%,var(--surface-2))] text-[var(--accent)]; }
