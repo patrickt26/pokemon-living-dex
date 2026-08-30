@@ -6,12 +6,14 @@ import { PokemonBox } from '../components/PokemonBox';
 import { PokemonDetails } from '../components/PokemonDetails';
 import { ProgressBar } from '../components/ProgressBar';
 import { pokemonDataSource } from '../data/PokemonDataSource';
-import { getIndexedEntries, hasMultipleOrigins, indexCollectionEntries } from '../domain/collection';
+import { getIndexedEntries, indexCollectionEntries } from '../domain/collection';
 import { generationOptions, isInGenerations, toggleGenerationSelection } from '../domain/generations';
-import type { AlphaFilter, GameDexSection, OwnershipFilter, PokemonForm, PokemonType, ShinyFilter, Species } from '../domain/models';
+import type { AlphaFilter, GameDexSection, PokemonForm, Species } from '../domain/models';
 import { paginateDexGroupList } from '../domain/dexView';
-import { isInTypes, toggleTypeSelection } from '../domain/types';
-import { useCollection, useCollectionActions } from '../hooks/useCollection';
+import { isInTypes } from '../domain/types';
+import { useCollection } from '../hooks/useCollection';
+import { useDexCollectionActions } from '../hooks/useDexCollectionActions';
+import { useDexFilters } from '../hooks/useDexFilters';
 import { useUiStore } from '../store/uiStore';
 import { useI18n } from '../i18n';
 
@@ -20,16 +22,11 @@ const collectsBySpecies = (species:Species, section?:GameDexSection) => !section
 export function DexPage({ gameId }: { gameId?: string }) {
   const { t } = useI18n();
   const { data: entries = [] } = useCollection();
-  const { add, addMany, changeQuantity, removeMany } = useCollectionActions();
   const { search, setSearch, otFilter, setOtFilter, selectedFormId, selectForm } = useUiStore();
-  const [ownershipFilter, setOwnershipFilter] = useState<OwnershipFilter>('all');
-  const [shiny, setShiny] = useState<ShinyFilter>('all');
-  const [selectedAlpha, setSelectedAlpha] = useState<AlphaFilter>('all');
+  const {ownership:ownershipFilter,setOwnership:setOwnershipFilter,shiny,setShiny,alpha:selectedAlpha,setAlpha:setSelectedAlpha,selectedTypes,toggleType,shinyValue}=useDexFilters();
   const [selectedSection, setSelectedSection] = useState(gameId === 'bdsp' ? 'sinnoh' : gameId === 'frlg' ? 'kanto' : 'all');
   const [selectedGenerations, setSelectedGenerations] = useState<string[]>([]);
-  const [selectedTypes, setSelectedTypes] = useState<PokemonType[]>([]);
   const toggleGeneration = (generation: string) => setSelectedGenerations(current => toggleGenerationSelection(current, generation));
-  const toggleType = (type:PokemonType|'all') => setSelectedTypes(current=>toggleTypeSelection(current,type));
   const allSpecies = pokemonDataSource.getSpecies();
   const speciesById = pokemonDataSource.getSpeciesById();
   const formsById = pokemonDataSource.getFormsById();
@@ -37,20 +34,13 @@ export function DexPage({ gameId }: { gameId?: string }) {
   const supportsAlpha = !game || game.supportsAlpha === true;
   const alphaFilter:AlphaFilter = supportsAlpha ? selectedAlpha : 'all';
   const alphaValue = alphaFilter === 'alpha';
-  const shinyValue = shiny === 'shiny';
   const formFor = useCallback((species: Species, section?: GameDexSection) => formsById.get(section?.formOverrides?.[species.id] ?? species.defaultFormId)!, [formsById]);
   const entryIndex=useMemo(()=>indexCollectionEntries(entries,{gameId,shiny,alpha:alphaFilter,ot:otFilter}),[entries,gameId,shiny,alphaFilter,otFilter]);
   const defaultGameId = gameId ?? 'home';
+  const {quickToggle:quickAdd,addMany,removeMany}=useDexCollectionActions({entries,entryIndex,gameId:defaultGameId,ot:otFilter,shiny,alpha:alphaFilter,onSelect:selectForm});
   const hasSectionToggle = (game?.dexSections?.length ?? 0) > 1;
   const sectionOptions = hasSectionToggle ? [...(game?.id === 'bdsp' || game?.id === 'frlg' ? [] : [{ id: 'all', label: 'All' }]), ...(game?.dexSections?.map(s => ({ id: s.id, label: s.name })) ?? [])] : undefined;
   const activeSections = selectedSection === 'all' ? game?.dexSections : game?.dexSections?.filter(s => s.id === selectedSection);
-  const quickAdd = (form: PokemonForm) => {
-    const relevant = entryIndex.byFormId.get(form.id)??[];
-    if (hasMultipleOrigins(relevant)) { selectForm(form.id); return; }
-    const existing = relevant.find(e => e.gameId === defaultGameId && e.ownOT === (otFilter !== 'other') && e.shiny === shinyValue && e.alpha === alphaValue) ?? relevant[0];
-    if (existing) changeQuantity.mutate({ id: existing.id, quantity: existing.quantity - 1 });
-    else add.mutate({ speciesId: form.speciesId, formId: form.id, gameId: defaultGameId, originGameId: defaultGameId, ownOT: otFilter !== 'other', shiny: shinyValue, alpha:alphaValue, quantity: 1 });
-  };
   const groups = useMemo(() => {
     const matches = (name: string, n: number) => name.toLowerCase().includes(search.toLowerCase()) || String(n).includes(search.replace('#', ''));
     const matchesType = (form:PokemonForm)=>isInTypes(form.types,selectedTypes);
