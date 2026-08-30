@@ -11,7 +11,7 @@ describe('DexFilters',()=>{
     const generations=within(screen.getAllByLabelText('Generation filter').at(-1)!);
     expect(generations.getByRole('button',{name:'All'})).toHaveAttribute('aria-pressed','true');
     expect(generations.getByRole('button',{name:'1'})).toHaveAttribute('aria-pressed','false');
-    fireEvent.change(screen.getByPlaceholderText('Search name or # number'),{target:{value:'Pikachu'}});
+    fireEvent.change(screen.getByPlaceholderText('Search Pokémon or # number'),{target:{value:'Pikachu'}});
     fireEvent.click(generations.getByRole('button',{name:'1'}));
     fireEvent.click(screen.getByRole('button',{name:'Owned'}));
     fireEvent.click(screen.getByRole('button',{name:'Own OT'}));
