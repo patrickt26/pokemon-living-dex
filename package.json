@@ -12,6 +12,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "data:generate:species": "node scripts/generate-species.mjs /tmp/pokemon-species.json",
+    "data:generate:types": "node scripts/generate-types.mjs /tmp/pokemon-living-dex-types.csv",
     "data:generate:games": "node scripts/generate-game-dexes.mjs"
   },
   "dependencies": {

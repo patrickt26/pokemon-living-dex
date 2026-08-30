@@ -2,6 +2,7 @@ import type { FormGroup, Game, PokemonForm, Species } from '../domain/models';
 import { isStandardVariantAlias } from '../domain/variantForms';
 import { generatedSpecies } from './generatedSpecies';
 import { generatedGameDexes } from './generatedGameDexes';
+import { generatedPokemonTypes } from './generatedPokemonTypes';
 
 const sprite = (id: number, shiny = false) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${shiny ? 'shiny/' : ''}${id}.png`;
 const formSprite = (id: number, slug: string, shiny = false) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${shiny ? 'shiny/' : ''}${id}-${slug}.png`;
@@ -12,8 +13,8 @@ const unownSprite = (slug: string, shiny = false) => {
 };
 const rawSpecies = generatedSpecies;
 export const species: Species[] = rawSpecies.map(([number,name]) => ({ id: `species-${number}`, nationalDexNumber: number, name, defaultFormId: `form-${number}-default` }));
-const baseForms: PokemonForm[] = rawSpecies.map(([number]) => ({ id: `form-${number}-default`, speciesId: `species-${number}`, name: 'Standard', sprite: sprite(number), shinySprite: sprite(number, true) }));
-const alt = (speciesNumber:number, slug:string, name:string, pokeApiId:number, extra:Partial<PokemonForm>={}): PokemonForm => ({ id:`form-${speciesNumber}-${slug}`, speciesId:`species-${speciesNumber}`, name, sprite:sprite(pokeApiId), shinySprite:sprite(pokeApiId,true), ...extra });
+const baseForms: PokemonForm[] = rawSpecies.map(([number]) => ({ id: `form-${number}-default`, speciesId: `species-${number}`, name: 'Standard', sprite: sprite(number), shinySprite: sprite(number, true), types:generatedPokemonTypes[number]??[] }));
+const alt = (speciesNumber:number, slug:string, name:string, pokeApiId:number, extra:Partial<PokemonForm>={}): PokemonForm => ({ id:`form-${speciesNumber}-${slug}`, speciesId:`species-${speciesNumber}`, name, sprite:sprite(pokeApiId), shinySprite:sprite(pokeApiId,true), types:generatedPokemonTypes[pokeApiId]??generatedPokemonTypes[speciesNumber]??[], ...extra });
 const regionalForms: PokemonForm[] = [
   ...([[19,10091],[20,10092],[26,10100],[27,10101],[28,10102],[37,10103],[38,10104],[50,10105],[51,10106],[52,10107],[53,10108],[74,10109],[75,10110],[76,10111],[88,10112],[89,10113],[103,10114],[105,10115]] as const).map(([number,id])=>alt(number,'alola','Alolan',id,{region:'alola'})),
   ...([[52,10161],[77,10162],[78,10163],[79,10164],[80,10165],[83,10166],[110,10167],[122,10168],[144,10169],[145,10170],[146,10171],[199,10172],[222,10173],[263,10174],[264,10175],[554,10176],[555,10177],[562,10179],[618,10180]] as const).map(([number,id])=>alt(number,'galar','Galarian',id,{region:'galar'})),

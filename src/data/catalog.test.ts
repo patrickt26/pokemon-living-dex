@@ -70,6 +70,15 @@ describe('generated game dex membership', () => {
     expect(forms.some(form=>form.id==='form-128-paldea-aqua')).toBe(true);
   });
 
+  it('includes types for every supported form and preserves regional type changes',()=>{
+    expect(forms.every(form=>form.types.length>0)).toBe(true);
+    expect(forms.find(form=>form.id==='form-6-default')?.types).toEqual(['fire','flying']);
+    expect(forms.find(form=>form.id==='form-26-default')?.types).toEqual(['electric']);
+    expect(forms.find(form=>form.id==='form-26-alola')?.types).toEqual(['electric','psychic']);
+    expect(forms.find(form=>form.id==='form-77-galar')?.types).toEqual(['psychic']);
+    expect(forms.find(form=>form.id==='form-479-heat')?.types).toEqual(['electric','fire']);
+  });
+
   it('uses native regional forms in Galar and Paldea sections', () => {
     const swsh=games.find(game=>game.id==='swsh')!;const sv=games.find(game=>game.id==='sv')!;
     expect(swsh.dexSections?.find(section=>section.id==='galar')?.formOverrides?.['species-77']).toBe('form-77-galar');
