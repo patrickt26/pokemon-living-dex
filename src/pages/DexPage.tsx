@@ -9,7 +9,7 @@ import { pokemonDataSource } from '../data/PokemonDataSource';
 import { getIndexedEntries, indexCollectionEntries } from '../domain/collection';
 import { generationOptions, isInGenerations, toggleGenerationSelection } from '../domain/generations';
 import type { AlphaFilter, GameDexSection, PokemonForm, Species } from '../domain/models';
-import { paginateDexGroupList } from '../domain/dexView';
+import { filterDexBoxesBySearch, paginateDexGroupList } from '../domain/dexView';
 import { isInTypes } from '../domain/types';
 import { useCollection } from '../hooks/useCollection';
 import { useDexCollectionActions } from '../hooks/useDexCollectionActions';
@@ -42,19 +42,18 @@ export function DexPage({ gameId }: { gameId?: string }) {
   const sectionOptions = hasSectionToggle ? [...(game?.id === 'bdsp' || game?.id === 'frlg' ? [] : [{ id: 'all', label: t('all') }]), ...(game?.dexSections?.map(s => ({ id: s.id, label: s.name })) ?? [])] : undefined;
   const activeSections = selectedSection === 'all' ? game?.dexSections : game?.dexSections?.filter(s => s.id === selectedSection);
   const groups = useMemo(() => {
-    const matches = (name: string, n: number) => name.toLowerCase().includes(search.toLowerCase()) || String(n).includes(search.replace('#', ''));
     const matchesType = (form:PokemonForm)=>isInTypes(form.types,selectedTypes);
     if (game && selectedSection === 'all' && hasSectionToggle) {
       const sectionItems = (sections:GameDexSection[])=>sections.flatMap(section=>section.dexSpeciesIds.map((id,index)=>{const species=speciesById.get(id);return species?{species,form:formFor(species,section),dexNumber:index+1,showDexNumber:section.showDexNumbers!==false,collectBySpecies:collectsBySpecies(species,section)}:null})).filter((item):item is NonNullable<typeof item>=>item!==null);
-      const numberedItems=[...new Map(sectionItems((game.dexSections??[]).filter(section=>section.showDexNumbers!==false)).map(item=>[item.form.id,item])).values()].filter(item=>matches(item.species.name,item.species.nationalDexNumber)&&matchesType(item.form));
-      const unnumberedGroups=(game.dexSections??[]).filter(section=>section.showDexNumbers===false).map(section=>({id:section.id,label:section.name,items:sectionItems([section]).filter(item=>matches(item.species.name,item.species.nationalDexNumber)&&matchesType(item.form))}));
+      const numberedItems=[...new Map(sectionItems((game.dexSections??[]).filter(section=>section.showDexNumbers!==false)).map(item=>[item.form.id,item])).values()].filter(item=>matchesType(item.form));
+      const unnumberedGroups=(game.dexSections??[]).filter(section=>section.showDexNumbers===false).map(section=>({id:section.id,label:section.name,items:sectionItems([section]).filter(item=>matchesType(item.form))}));
       return [{id:'all',label:t('all'),items:numberedItems},...unnumberedGroups].filter(group=>group.items.length);
     }
-    if (activeSections) return activeSections.map(section => ({ id: section.id, label: section.name, items: section.dexSpeciesIds.map((id, index) => ({ species: speciesById.get(id), dexNumber: index + 1, showDexNumber:section.showDexNumbers!==false })).filter((x): x is { species: Species; dexNumber: number; showDexNumber:boolean } => !!x.species).filter(x => matches(x.species.name, x.species.nationalDexNumber)).map(x => ({ ...x, form: formFor(x.species, section), collectBySpecies:collectsBySpecies(x.species,section) })).filter(item=>matchesType(item.form)) })).filter(x => x.items.length);
-    return [{ id: 'national', label: null, items: allSpecies.filter(s => isInGenerations(s.nationalDexNumber, selectedGenerations)).filter(s => matches(s.name, s.nationalDexNumber)).map(species => ({ species, form: formsById.get(species.defaultFormId)!, dexNumber: species.nationalDexNumber, collectBySpecies:true })).filter(item=>matchesType(item.form)) }];
-  }, [allSpecies, speciesById, formsById, game, activeSections, hasSectionToggle, selectedSection, selectedGenerations, selectedTypes, search, formFor, t]);
+    if (activeSections) return activeSections.map(section => ({ id: section.id, label: section.name, items: section.dexSpeciesIds.map((id, index) => ({ species: speciesById.get(id), dexNumber: index + 1, showDexNumber:section.showDexNumbers!==false })).filter((x): x is { species: Species; dexNumber: number; showDexNumber:boolean } => !!x.species).map(x => ({ ...x, form: formFor(x.species, section), collectBySpecies:collectsBySpecies(x.species,section) })).filter(item=>matchesType(item.form)) })).filter(x => x.items.length);
+    return [{ id: 'national', label: null, items: allSpecies.filter(s => isInGenerations(s.nationalDexNumber, selectedGenerations)).map(species => ({ species, form: formsById.get(species.defaultFormId)!, dexNumber: species.nationalDexNumber, collectBySpecies:true })).filter(item=>matchesType(item.form)) }];
+  }, [allSpecies, speciesById, formsById, game, activeSections, hasSectionToggle, selectedSection, selectedGenerations, selectedTypes, formFor, t]);
   const visibleGroups = groups.map(group => ({ ...group, items: group.items.filter(item => { const owned=getIndexedEntries(entryIndex,item.species.id,item.form.id,item.collectBySpecies).some(entry=>entry.quantity>0);return ownershipFilter === 'all' || (ownershipFilter === 'owned' ? owned : !owned); }) })).filter(g => g.items.length);
-  const boxes = paginateDexGroupList(visibleGroups, 30, game ? 'game-' : '');
+  const boxes = filterDexBoxesBySearch(paginateDexGroupList(visibleGroups, 30, game ? 'game-' : ''),search);
   const addBox = (items: (typeof boxes)[number]['items']) => addMany.mutate(items.map(({ species, form }) => ({ speciesId: species.id, formId: form.id, gameId: defaultGameId, originGameId: defaultGameId, ownOT: true, shiny: shinyValue, alpha:alphaValue, quantity: 1 })));
   const clearBox = (items: (typeof boxes)[number]['items']) => { removeMany.mutate(entries.filter(entry => items.some(item=>item.collectBySpecies?entry.speciesId===item.species.id:entry.formId===item.form.id) && (shiny==='all'||entry.shiny===shinyValue) && (alphaFilter==='all'||entry.alpha===alphaValue) && (!gameId || entry.gameId === gameId)).map(entry => entry.id)); };
   const selected = selectedFormId ? formsById.get(selectedFormId) : undefined;

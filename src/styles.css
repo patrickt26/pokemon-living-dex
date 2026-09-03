@@ -59,8 +59,11 @@
 
   .main { @apply ml-61; }
   .topbar { @apply sticky top-0 z-4 flex h-18.5 items-center justify-between border-b border-[var(--line)] bg-[color-mix(in_srgb,var(--surface)_92%,transparent)] px-9 py-3.5; }
-  .topbar label, .search { @apply flex items-center gap-2.5 rounded-[10px] bg-[var(--surface-2)] px-3.5 py-2.5 text-[var(--muted)]; }
+  .search { @apply flex items-center gap-2.5 rounded-[10px] bg-[var(--surface-2)] px-3.5 py-2.5 text-[var(--muted)]; }
   .topbar input, .search input { @apply w-[min(360px,50vw)] border-0 bg-transparent text-[var(--text)] outline-0; }
+  .search-clear { @apply grid size-6 shrink-0 cursor-pointer place-items-center rounded-full border-0 bg-transparent p-0 text-[var(--muted)] transition-colors; }
+  .search-clear:hover { @apply bg-[var(--surface)] text-[var(--text)]; }
+  .search-clear:disabled { @apply invisible; }
   .status-dot { @apply text-xs text-[var(--muted)]; }
   .status-dot::before { content:''; @apply mr-1.5 inline-block size-1.75 rounded-full bg-[#3aaf82]; }
   .topbar-status { @apply flex items-center gap-3; }

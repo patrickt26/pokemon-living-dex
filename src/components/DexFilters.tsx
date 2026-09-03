@@ -1,5 +1,5 @@
-import { Search } from 'lucide-react';
 import { AlphaIcon } from './AlphaIcon';
+import { SearchField } from './SearchField';
 import { TypeIcon } from './TypeIcon';
 import { useI18n } from '../i18n';
 import type { AlphaFilter, OtFilter, OwnershipFilter, PokemonType, ShinyFilter } from '../domain/models';
@@ -22,7 +22,7 @@ const typeLabels:Record<PokemonType,string>={normal:'Normal',fire:'Fire',water:'
 export function DexFilters({search,onSearch,ot,onOt,ownership,onOwnership,shiny='all',onShiny,alpha,onAlpha,sections,selectedSection,onSection,generations,selectedGenerations=[],onGeneration,selectedTypes,onType}:Props){
   const {t}=useI18n();
   return <div className="filters">
-    <label className="search"><Search size={18}/><input value={search} onChange={event=>onSearch(event.target.value)} placeholder={t('search','Search name or # number')}/></label>
+    <SearchField value={search} onChange={onSearch}/>
     <div className="segmented shiny-selector" aria-label={t('collectionView','Collection view')}>{([['all',t('all','All')],['shiny',t('shinyMode','Shiny')],['regular',t('normalMode','Normal')]] as const).map(([value,label])=><button className={shiny===value?'active':''} onClick={()=>onShiny?.(value)} key={value}>{value==='shiny'&&'✨ '}{label}</button>)}</div>
     {alpha!==undefined&&<div className="segmented alpha-selector" aria-label={t('alphaFilter','Alpha filter')}>{([['all',t('all','All')],['alpha',t('alpha','Alpha')],['regular',t('notAlpha','Not Alpha')]] as const).map(([value,label])=><button className={alpha===value?'active':''} onClick={()=>onAlpha?.(value)} key={value}>{value==='alpha'&&<AlphaIcon/>}{label}</button>)}</div>}
     {sections?.length&&<div className="segmented dex-section-selector">{sections.map(option=><button className={selectedSection===option.id?'active':''} onClick={()=>onSection?.(option.id)} key={option.id}>{option.label}</button>)}</div>}

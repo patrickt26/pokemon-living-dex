@@ -18,6 +18,13 @@ describe('DexFilters',()=>{
     expect(onSearch).toHaveBeenCalledWith('Pikachu');expect(onGeneration).toHaveBeenCalledWith('1');expect(onOwnership).toHaveBeenCalledWith('owned');expect(onOt).toHaveBeenCalledWith('own');
   });
 
+  it('clears the current search with one action',()=>{
+    const onSearch=vi.fn();
+    const {container}=render(<DexFilters {...baseProps} search="Pikachu" onSearch={onSearch}/>);
+    fireEvent.click(within(container).getByRole('button',{name:'Clear search'}));
+    expect(onSearch).toHaveBeenCalledWith('');
+  });
+
   it('marks multiple generation buttons as selected while All remains exclusive',()=>{
     render(<DexFilters {...baseProps} generations={[{id:'all',label:'All'},{id:'2',label:'2'},{id:'4',label:'4'}]} selectedGenerations={['2','4']} onGeneration={vi.fn()}/>);
     const generations=within(screen.getAllByLabelText('Generation filter').at(-1)!);
