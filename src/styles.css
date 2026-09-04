@@ -59,11 +59,16 @@
 
   .main { @apply ml-61; }
   .topbar { @apply sticky top-0 z-4 flex h-18.5 items-center justify-between border-b border-[var(--line)] bg-[color-mix(in_srgb,var(--surface)_92%,transparent)] px-9 py-3.5; }
-  .search { @apply flex items-center gap-2.5 rounded-[10px] bg-[var(--surface-2)] px-3.5 py-2.5 text-[var(--muted)]; }
+  .search { @apply relative flex items-center gap-2.5 rounded-[10px] bg-[var(--surface-2)] px-3.5 py-2.5 text-[var(--muted)]; }
   .topbar input, .search input { @apply w-[min(360px,50vw)] border-0 bg-transparent text-[var(--text)] outline-0; }
   .search-clear { @apply grid size-6 shrink-0 cursor-pointer place-items-center rounded-full border-0 bg-transparent p-0 text-[var(--muted)] transition-colors; }
   .search-clear:hover { @apply bg-[var(--surface)] text-[var(--text)]; }
   .search-clear:disabled { @apply invisible; }
+  .search-suggestions { @apply absolute top-[calc(100%+6px)] right-0 left-0 z-20 overflow-hidden rounded-[10px] border border-[var(--line)] bg-[var(--surface)] p-1.5 shadow-xl; }
+  .search-suggestions button { @apply flex w-full cursor-pointer items-center gap-3 rounded-lg border-0 bg-transparent px-2.5 py-2 text-left text-[var(--text)]; }
+  .search-suggestions button:hover, .search-suggestions button.active { @apply bg-[var(--surface-2)]; }
+  .search-suggestions button span { @apply w-9 shrink-0 text-[10px] font-bold text-[var(--accent)]; }
+  .search-suggestions button strong { @apply truncate text-xs; }
   .status-dot { @apply text-xs text-[var(--muted)]; }
   .status-dot::before { content:''; @apply mr-1.5 inline-block size-1.75 rounded-full bg-[#3aaf82]; }
   .topbar-status { @apply flex items-center gap-3; }
@@ -127,6 +132,9 @@
   .pokemon-grid { @apply grid grid-cols-6 gap-px bg-[var(--line)]; }
   .pokemon-slot { @apply relative flex min-h-32 cursor-pointer flex-col items-center border-0 bg-[var(--surface)] px-1 py-2.5 text-[var(--text)] transition-colors; }
   .pokemon-slot:hover { @apply bg-[var(--surface-2)]; }
+  .pokemon-slot.search-match { @apply z-1 bg-[color-mix(in_srgb,var(--accent)_14%,var(--surface))] shadow-[inset_0_0_0_3px_var(--accent)]; }
+  .pokemon-slot.search-match strong { @apply text-[var(--accent)]; }
+  .pokemon-slot.search-match .pokemon-sprite { @apply scale-110; }
   .pokemon-slot.missing { @apply bg-[color-mix(in_srgb,var(--surface-2)_55%,var(--surface))]; }
   .pokemon-slot strong { @apply max-w-full overflow-hidden text-[11px] text-ellipsis whitespace-nowrap; }
   .pokemon-slot small { @apply text-[9px] text-[var(--muted)]; }

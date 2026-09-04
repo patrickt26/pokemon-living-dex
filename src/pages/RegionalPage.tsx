@@ -1,5 +1,5 @@
 import { Plus, Trash2 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { ConfirmButton } from '../components/ConfirmButton';
 import { DexFilters } from '../components/DexFilters';
 import { PokemonBox } from '../components/PokemonBox';
@@ -9,19 +9,20 @@ import { pokemonDataSource } from '../data/PokemonDataSource';
 import { isAlphaEligibleSpecies } from '../domain/alpha';
 import { indexCollectionEntries } from '../domain/collection';
 import type { OtFilter, PokemonForm, Region } from '../domain/models';
-import { matchesPokemonSearch } from '../domain/dexView';
+import { createDexSearchSuggestions } from '../domain/dexView';
 import { isInTypes } from '../domain/types';
 import { useCollection } from '../hooks/useCollection';
 import { useDexCollectionActions } from '../hooks/useDexCollectionActions';
 import { useDexFilters } from '../hooks/useDexFilters';
 import { useI18n } from '../i18n';
 import { useUiStore } from '../store/uiStore';
+import { useProvideSearchSuggestions } from '../store/searchSuggestionsStore';
 
 const labels:Record<Region,string>={alola:'Alola',galar:'Galar',hisui:'Hisui',paldea:'Paldea'};
 
 export function RegionalPage(){
   const {data:entries=[]}=useCollection();
-  const {selectedFormId,selectForm,search,setSearch}=useUiStore();
+  const {selectedFormId,selectForm,search,searchTargetSpeciesId,setSearch}=useUiStore();
   const {t}=useI18n();
   const {shiny,setShiny,alpha,setAlpha,ownership,setOwnership,selectedTypes,toggleType,shinyValue}=useDexFilters();
   const [ot,setOt]=useState<OtFilter>('all');
@@ -34,13 +35,18 @@ export function RegionalPage(){
   const eligible=(form:PokemonForm)=>isAlphaEligibleSpecies(games,form.speciesId);
   const addBox=(items:{form:PokemonForm}[])=>addForms(items.map(item=>item.form),form=>alpha!=='alpha'||eligible(form));
   const clearBox=(items:{form:PokemonForm}[])=>clearForms(items.map(item=>item.form));
-  const allRegional=forms.filter(form=>form.region&&(alpha!=='alpha'||eligible(form))&&isInTypes(form.types,selectedTypes));
+  const allRegional=useMemo(()=>forms.filter(form=>form.region&&(alpha!=='alpha'||isAlphaEligibleSpecies(games,form.speciesId))&&isInTypes(form.types,selectedTypes)),[forms,games,alpha,selectedTypes]);
   const regionalItems=allRegional.map(form=>({form}));
   const speciesIds=[...new Set(regionalItems.map(item=>item.form.speciesId))];
   const formIds=new Set(allRegional.map(form=>form.id));
   const obtained=new Set(entryIndex.entries.filter(entry=>entry.quantity>0&&formIds.has(entry.formId)).map(entry=>entry.speciesId)).size;
   const percentage=speciesIds.length?Math.round(obtained/speciesIds.length*1000)/10:0;
-  const visible=(form:PokemonForm)=>{const owned=(entryIndex.byFormId.get(form.id)??[]).some(entry=>entry.quantity>0);return ownership==='all'||(ownership==='owned'?owned:!owned)};
+  const visible=useCallback((form:PokemonForm)=>{const owned=(entryIndex.byFormId.get(form.id)??[]).some(entry=>entry.quantity>0);return ownership==='all'||(ownership==='owned'?owned:!owned)},[entryIndex,ownership]);
+  const regionalGroups=useMemo(()=>(Object.keys(labels) as Region[]).map(region=>({region,items:allRegional.filter(form=>form.region===region&&visible(form)).map(form=>({form,species:speciesById.get(form.speciesId)!}))})).filter(group=>group.items.length),[allRegional,speciesById,visible]);
+  const searchSuggestions=useMemo(()=>createDexSearchSuggestions(regionalGroups.flatMap(group=>group.items)),[regionalGroups]);
+  useProvideSearchSuggestions(searchSuggestions);
+  const searchTargetGroup=searchTargetSpeciesId?regionalGroups.find(group=>group.items.some(item=>item.species.id===searchTargetSpeciesId)):undefined;
+  const displayedGroups=searchTargetSpeciesId?(searchTargetGroup?[searchTargetGroup]:[]):regionalGroups;
   const selected=selectedFormId?formsById.get(selectedFormId):undefined;
-  return <><div className="page-head dex-page-head"><div><span className="eyebrow">{t('regionalCollection')}</span><h1>{t('regionalForms','Regional Forms')}</h1><p>{shiny==='shiny'?t('regionalShinyDescription','Only shiny regional entries count toward this view.'):t('regionalDescription','Regional forms remain connected to their National Dex species.')}</p></div><div className="page-head-side"><div className="dex-progress-summary"><div><span>{t('dexCompletion','Dex completion')}</span><strong>{obtained} / {speciesIds.length}</strong></div><ProgressBar value={percentage}/><small>{percentage}% {t('completePercent')}</small></div><div className="dex-actions"><button onClick={()=>addBox(regionalItems)}><Plus size={16}/> {t('complete','Complete Dex')}</button><ConfirmButton className="danger" title={t('clearRegional','Clear all regional forms?')} description={t('clearRegionalDescription','Every regional form entry will be removed from your collection. This cannot be undone.')} confirmLabel={t('clear','Clear Dex')} onConfirm={()=>clearBox(regionalItems)}><Trash2 size={16}/> {t('clear','Clear Dex')}</ConfirmButton></div></div></div><DexFilters search={search} onSearch={setSearch} shiny={shiny} onShiny={setShiny} alpha={alpha} onAlpha={setAlpha} ownership={ownership} onOwnership={setOwnership} ot={ot} onOt={setOt} selectedTypes={selectedTypes} onType={toggleType}/>{(Object.keys(labels) as Region[]).map(region=>{const items=allRegional.filter(form=>form.region===region&&visible(form)).map(form=>({form,species:speciesById.get(form.speciesId)!}));const matchesSearch=items.some(item=>matchesPokemonSearch(item,search));return items.length&&matchesSearch?<PokemonBox key={region} title={labels[region]} items={items} entryIndex={entryIndex} formsById={formsById} shiny={shinyValue} onSelect={form=>selectForm(form.id)} onQuickAdd={quickToggle} onAddAll={()=>addBox(items)} onRemoveAll={()=>clearBox(items)}/>:null})}{selected&&<PokemonDetails form={selected} entries={entries} onClose={()=>selectForm(null)}/>}</>;
+  return <><div className="page-head dex-page-head"><div><span className="eyebrow">{t('regionalCollection')}</span><h1>{t('regionalForms','Regional Forms')}</h1><p>{shiny==='shiny'?t('regionalShinyDescription','Only shiny regional entries count toward this view.'):t('regionalDescription','Regional forms remain connected to their National Dex species.')}</p></div><div className="page-head-side"><div className="dex-progress-summary"><div><span>{t('dexCompletion','Dex completion')}</span><strong>{obtained} / {speciesIds.length}</strong></div><ProgressBar value={percentage}/><small>{percentage}% {t('completePercent')}</small></div><div className="dex-actions"><button onClick={()=>addBox(regionalItems)}><Plus size={16}/> {t('complete','Complete Dex')}</button><ConfirmButton className="danger" title={t('clearRegional','Clear all regional forms?')} description={t('clearRegionalDescription','Every regional form entry will be removed from your collection. This cannot be undone.')} confirmLabel={t('clear','Clear Dex')} onConfirm={()=>clearBox(regionalItems)}><Trash2 size={16}/> {t('clear','Clear Dex')}</ConfirmButton></div></div></div><DexFilters search={search} onSearch={setSearch} shiny={shiny} onShiny={setShiny} alpha={alpha} onAlpha={setAlpha} ownership={ownership} onOwnership={setOwnership} ot={ot} onOt={setOt} selectedTypes={selectedTypes} onType={toggleType}/>{displayedGroups.map(({region,items})=><PokemonBox key={region} title={labels[region]} items={items} entryIndex={entryIndex} formsById={formsById} shiny={shinyValue} searchTargetSpeciesId={searchTargetSpeciesId} onSelect={form=>selectForm(form.id)} onQuickAdd={quickToggle} onAddAll={()=>addBox(items)} onRemoveAll={()=>clearBox(items)}/>) }{selected&&<PokemonDetails form={selected} entries={entries} onClose={()=>selectForm(null)}/>}</>;
 }

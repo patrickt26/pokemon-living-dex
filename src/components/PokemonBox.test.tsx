@@ -30,4 +30,10 @@ describe('PokemonBox form collection',()=>{
     expect(screen.queryByText('Heat')).not.toBeInTheDocument();
     expect(screen.getByRole('button',{name:/2 owned/})).toBeInTheDocument();
   });
+
+  it('highlights an explicitly selected suggestion',()=>{
+    render(<PokemonBox title="BOX 01" items={[{species,form:standard,dexNumber:5}]} entryIndex={indexCollectionEntries([])} searchTargetSpeciesId={species.id} onSelect={vi.fn()}/>);
+
+    expect(screen.getByRole('button',{name:/Rotom, National Dex/})).toHaveClass('search-match');
+  });
 });
