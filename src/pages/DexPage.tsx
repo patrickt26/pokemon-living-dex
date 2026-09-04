@@ -9,7 +9,7 @@ import { pokemonDataSource } from '../data/PokemonDataSource';
 import { getIndexedEntries, indexCollectionEntries } from '../domain/collection';
 import { generationOptions, isInGenerations, toggleGenerationSelection } from '../domain/generations';
 import type { AlphaFilter, GameDexSection, PokemonForm, Species } from '../domain/models';
-import { createDexSearchSuggestions, paginateDexGroupList, uniqueDexItemsBySpecies } from '../domain/dexView';
+import { combineDexItemsBySpecies, createDexSearchSuggestions, paginateDexGroupList } from '../domain/dexView';
 import { isInTypes } from '../domain/types';
 import { useCollection } from '../hooks/useCollection';
 import { useDexCollectionActions } from '../hooks/useDexCollectionActions';
@@ -46,7 +46,7 @@ export function DexPage({ gameId }: { gameId?: string }) {
     const matchesType = (form:PokemonForm)=>isInTypes(form.types,selectedTypes);
     if (game && selectedSection === 'all' && hasSectionToggle) {
       const sectionItems = (sections:GameDexSection[])=>sections.flatMap(section=>section.dexSpeciesIds.map((id,index)=>{const species=speciesById.get(id);return species?{species,form:formFor(species,section),dexNumber:index+1,showDexNumber:section.showDexNumbers!==false,collectBySpecies:collectsBySpecies(species,section)}:null})).filter((item):item is NonNullable<typeof item>=>item!==null);
-      const numberedItems=uniqueDexItemsBySpecies(sectionItems((game.dexSections??[]).filter(section=>section.showDexNumbers!==false))).filter(item=>matchesType(item.form));
+      const numberedItems=combineDexItemsBySpecies(sectionItems((game.dexSections??[]).filter(section=>section.showDexNumbers!==false))).filter(item=>matchesType(item.form));
       const unnumberedGroups=(game.dexSections??[]).filter(section=>section.showDexNumbers===false).map(section=>({id:section.id,label:section.name,items:sectionItems([section]).filter(item=>matchesType(item.form))}));
       return [{id:'all',label:t('all'),items:numberedItems},...unnumberedGroups].filter(group=>group.items.length);
     }
