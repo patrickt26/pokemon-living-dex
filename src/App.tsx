@@ -8,6 +8,7 @@ const BackupPage=lazy(()=>import('./pages/BackupPage').then(module=>({default:mo
 const Dashboard=lazy(()=>import('./pages/Dashboard').then(module=>({default:module.Dashboard})));
 const DexPage=lazy(()=>import('./pages/DexPage').then(module=>({default:module.DexPage})));
 const GamesPage=lazy(()=>import('./pages/GamesPage').then(module=>({default:module.GamesPage})));
+const NotFoundPage=lazy(()=>import('./pages/NotFoundPage').then(module=>({default:module.NotFoundPage})));
 const RegionalPage=lazy(()=>import('./pages/RegionalPage').then(module=>({default:module.RegionalPage})));
 const SpecialFormsPage=lazy(()=>import('./pages/SpecialFormsPage').then(module=>({default:module.SpecialFormsPage})));
 
@@ -23,7 +24,7 @@ function LazyPage({children}:{children:ReactNode}){
 function GameDex(){
   const {gameId}=useParams();
   const game=pokemonDataSource.getGames().find(candidate=>candidate.id===gameId);
-  return !game||game.hasDex===false?<Navigate to="/games" replace/>:<DexPage key={gameId} gameId={gameId}/>;
+  return !game||game.hasDex===false?<NotFoundPage/>:<DexPage key={gameId} gameId={gameId}/>;
 }
 
 export default function App(){
@@ -36,6 +37,6 @@ export default function App(){
     <Route path="games" element={<LazyPage><GamesPage/></LazyPage>}/>
     <Route path="games/:gameId" element={<LazyPage><GameDex/></LazyPage>}/>
     <Route path="backup" element={<LazyPage><BackupPage/></LazyPage>}/>
-    <Route path="*" element={<Navigate to="/" replace/>}/>
+    <Route path="*" element={<LazyPage><NotFoundPage/></LazyPage>}/>
   </Route></Routes>;
 }

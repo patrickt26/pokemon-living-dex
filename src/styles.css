@@ -214,6 +214,26 @@
   .game-cards a p { @apply text-[var(--muted)]; }
   .game-cards a > span:last-child { @apply font-semibold text-[var(--accent)]; }
   .empty { @apply p-15 text-center text-[var(--muted)]; }
+  .not-found { @apply relative mx-auto grid min-h-[calc(100vh-154px)] max-w-255 grid-cols-2 items-center gap-14 overflow-hidden rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-14 py-12 shadow-sm; }
+  .not-found::before { content:''; @apply pointer-events-none absolute -top-35 -left-30 size-95 rounded-full bg-[color-mix(in_srgb,var(--accent)_9%,transparent)]; }
+  .not-found::after { content:''; @apply pointer-events-none absolute -right-18 -bottom-28 size-70 rounded-full border-40 border-[color-mix(in_srgb,var(--accent)_6%,transparent)]; }
+  .not-found-visual { @apply relative z-1 flex items-center justify-center gap-2 text-[clamp(72px,9vw,124px)] font-bold leading-none tracking-[-8px] text-[var(--text)]; }
+  .not-found-number { @apply drop-shadow-sm; }
+  .not-found-pokeball { @apply relative block size-[clamp(82px,10vw,132px)] translate-x-1.5 shrink-0 overflow-hidden rounded-full border-[clamp(7px,0.7vw,10px)] border-[var(--text)] bg-linear-to-b from-[#ef5b64] from-0% via-[#ef5b64] via-44% to-white to-44% shadow-[0_14px_30px_#0002]; }
+  .not-found-pokeball::before { content:''; @apply absolute top-[42%] right-0 left-0 h-[clamp(7px,0.7vw,10px)] bg-[var(--text)]; }
+  .not-found-pokeball i { @apply absolute top-1/2 left-1/2 z-1 block size-[30%] -translate-x-1/2 -translate-y-1/2 rounded-full border-[clamp(6px,0.55vw,8px)] border-[var(--text)] bg-white; }
+  .not-found-question { @apply absolute -top-5 right-[11%] grid size-9 rotate-8 place-items-center rounded-full bg-[var(--accent)] text-xl tracking-normal text-white shadow-lg; }
+  .not-found-copy { @apply relative z-1 max-w-110; }
+  .not-found-copy h1 { @apply mt-2 mb-3 text-[clamp(32px,4vw,50px)] leading-[1.05] tracking-[-1.8px]; }
+  .not-found-copy p { @apply m-0 max-w-100 leading-6 text-[var(--muted)]; }
+  .not-found-copy code { @apply mt-5 block max-w-full overflow-hidden text-ellipsis whitespace-nowrap rounded-lg border border-[var(--line)] bg-[var(--surface-2)] px-3 py-2 text-xs text-[var(--muted)]; }
+  .not-found-actions { @apply mt-7 flex flex-wrap gap-2.5; }
+  .not-found-actions a { @apply inline-flex items-center justify-center gap-2 rounded-[10px] px-4 py-3 text-sm font-bold no-underline transition-transform duration-150; }
+  .not-found-actions a:hover { @apply -translate-y-0.5; }
+  .not-found-primary { @apply bg-[var(--accent)] text-white shadow-[0_8px_20px_color-mix(in_srgb,var(--accent)_24%,transparent)]; }
+  .not-found-secondary { @apply border border-[var(--line)] bg-[var(--surface-2)] text-[var(--text)]; }
+  .not-found-back { @apply mt-6 inline-flex cursor-pointer items-center gap-1.5 border-0 bg-transparent p-0 text-xs font-semibold text-[var(--muted)]; }
+  .not-found-back:hover { @apply text-[var(--accent)]; }
   .backup-grid { @apply grid grid-cols-2 gap-5; }
   .backup-card { @apply mt-0 flex flex-col items-start; }
   .backup-card h2 { @apply mt-4 mb-2; }
@@ -269,6 +289,15 @@
   .page-head-side { @apply min-w-0 w-full; }
   .page-head h1 { @apply text-[27px]; }
   .cards, .game-cards, .backup-grid { @apply grid-cols-1; }
+  .not-found { @apply min-h-[calc(100vh-172px)] grid-cols-1 gap-4 rounded-2xl px-6 py-9 text-center; }
+  .not-found-visual { @apply text-[72px] tracking-[-6px]; }
+  .not-found-pokeball { @apply size-20 border-7; }
+  .not-found-pokeball::before { @apply h-[7px]; }
+  .not-found-pokeball i { @apply border-6; }
+  .not-found-question { @apply right-[20%]; }
+  .not-found-copy { @apply mx-auto; }
+  .not-found-copy p { @apply mx-auto; }
+  .not-found-actions { @apply justify-center; }
   .backup-preview { @apply flex-col items-start; }
   .filters { @apply flex-col; }
   .dex-section-selector { @apply w-full justify-start; }
