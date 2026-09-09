@@ -4,8 +4,9 @@ import { generatedSpecies } from './generatedSpecies';
 import { generatedGameDexes } from './generatedGameDexes';
 import { generatedPokemonTypes } from './generatedPokemonTypes';
 
-const sprite = (id: number, shiny = false) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${shiny ? 'shiny/' : ''}${id}.png`;
-const formSprite = (id: number, slug: string, shiny = false) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${shiny ? 'shiny/' : ''}${id}-${slug}.png`;
+// jsDelivr serves the same public PokeAPI sprite repository through a CDN.
+const sprite = (id: number, shiny = false) => `https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/${shiny ? 'shiny/' : ''}${id}.png`;
+const formSprite = (id: number, slug: string, shiny = false) => `https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/${shiny ? 'shiny/' : ''}${id}-${slug}.png`;
 const unownSprite = (slug: string, shiny = false) => {
   const symbol = slug === 'exclamation' ? 'exclamation' : slug === 'question' ? 'question' : undefined;
   if (symbol) return `https://play.pokemonshowdown.com/sprites/gen4${shiny ? '-shiny' : ''}/unown-${symbol}.png`;
