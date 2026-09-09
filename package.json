@@ -16,6 +16,7 @@
     "data:generate:games": "node scripts/generate-game-dexes.mjs"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.116.0",
     "@tanstack/react-query": "^5.85.5",
     "dexie": "^4.2.0",
     "lucide-react": "^0.468.0",

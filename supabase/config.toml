@@ -1,0 +1,8 @@
+project_id = "pokemon-living-dex"
+
+[auth]
+site_url = "https://pokemon-living-dex.vercel.app"
+additional_redirect_urls = [
+  "http://localhost:5173/backup",
+  "https://pokemon-living-dex.vercel.app/backup",
+]

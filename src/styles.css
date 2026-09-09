@@ -58,7 +58,7 @@
   .language-switcher button.active { @apply bg-[var(--surface)] text-[var(--accent)] shadow-sm; }
 
   .main { @apply ml-61; }
-  .topbar { @apply sticky top-0 z-4 flex h-18.5 items-center justify-between border-b border-[var(--line)] bg-[color-mix(in_srgb,var(--surface)_92%,transparent)] px-9 py-3.5; }
+  .topbar { @apply sticky top-0 z-4 flex h-18.5 items-center justify-between gap-4 overflow-hidden border-b border-[var(--line)] bg-[color-mix(in_srgb,var(--surface)_92%,transparent)] px-9 py-3.5; }
   .search { @apply relative flex items-center gap-2.5 rounded-[10px] bg-[var(--surface-2)] px-3.5 py-2.5 text-[var(--muted)]; }
   .topbar input, .search input { @apply w-[min(360px,50vw)] border-0 bg-transparent text-[var(--text)] outline-0; }
   .search-clear { @apply grid size-6 shrink-0 cursor-pointer place-items-center rounded-full border-0 bg-transparent p-0 text-[var(--muted)] transition-colors; }
@@ -69,11 +69,27 @@
   .search-suggestions button:hover, .search-suggestions button.active { @apply bg-[var(--surface-2)]; }
   .search-suggestions button span { @apply w-9 shrink-0 text-[10px] font-bold text-[var(--accent)]; }
   .search-suggestions button strong { @apply truncate text-xs; }
-  .status-dot { @apply text-xs text-[var(--muted)]; }
-  .status-dot::before { content:''; @apply mr-1.5 inline-block size-1.75 rounded-full bg-[#3aaf82]; }
-  .topbar-status { @apply flex items-center gap-3; }
-  .backup-shortcut { @apply flex items-center gap-1.5 rounded-lg border border-[var(--line)] bg-[var(--surface-2)] px-2.5 py-2 text-xs font-semibold text-[var(--muted)] no-underline; }
-  .backup-shortcut.active, .backup-shortcut:hover { @apply text-[var(--accent)]; }
+  .storage-status { @apply flex h-9 min-w-0 flex-1 flex-col items-start justify-center gap-1 overflow-hidden; }
+  .storage-indicator { @apply flex h-4 max-w-full items-center gap-1.5 text-xs leading-4 text-[var(--muted)]; }
+  .storage-indicator > span { @apply min-w-0 overflow-hidden text-ellipsis whitespace-nowrap; }
+  .storage-indicator::before { content:''; @apply block size-1.75 shrink-0 rounded-full bg-[var(--muted)]; }
+  .storage-indicator.local::before, .storage-indicator.cloud.state-saved::before { @apply bg-[#3aaf82]; }
+  .storage-indicator.cloud.state-empty::before, .storage-indicator.cloud.state-different::before { @apply bg-[#d39b20]; }
+  .storage-indicator.cloud.state-error::before { @apply bg-[#d45b64]; }
+  .storage-indicator.cloud.state-checking::before { @apply animate-pulse bg-[var(--accent)]; }
+  .header-account { @apply flex max-w-72 shrink-0 items-center gap-2.5 rounded-[10px] border border-[var(--line)] bg-[var(--surface-2)] px-2.5 py-1.5 text-[var(--text)] no-underline transition-colors; }
+  .header-account:hover, .header-account.signed-in { @apply border-[color-mix(in_srgb,var(--accent)_38%,var(--line))]; }
+  .header-account:hover { @apply bg-[color-mix(in_srgb,var(--accent)_8%,var(--surface-2))]; }
+  .header-account.loading { @apply text-[var(--muted)]; }
+  .header-provider { @apply grid size-7 shrink-0 place-items-center rounded-lg border border-[var(--line)] bg-[var(--surface)]; }
+  .header-provider.google { @apply bg-white; }
+  .header-provider.discord { @apply border-[#5865f244] bg-[#5865f214]; }
+  .header-provider.email { @apply text-[var(--accent)]; }
+  .header-avatar { @apply grid size-8 shrink-0 place-items-center rounded-full bg-[color-mix(in_srgb,var(--accent)_16%,var(--surface))] object-cover text-sm font-bold text-[var(--accent)]; }
+  .header-account-copy { @apply flex min-w-0 flex-col; }
+  .header-account-copy strong, .header-account-copy small { @apply overflow-hidden text-ellipsis whitespace-nowrap; }
+  .header-account-copy strong { @apply text-xs; }
+  .header-account-copy small { @apply text-[9px] text-[var(--muted)]; }
   main { @apply mx-auto max-w-360 px-9 pt-10 pb-20; }
 
   .page-head { @apply mb-7 flex justify-between gap-5; }
@@ -247,6 +263,48 @@
   .backup-preview h2 { @apply mt-1 mb-0; }
   .backup-preview-actions { @apply flex flex-wrap justify-end gap-2; }
   .backup-preview-actions .primary { @apply w-auto; }
+  .cloud-card { @apply p-6; }
+  .cloud-card > .notice:last-child { @apply mb-0; }
+  .cloud-card-head { @apply flex items-start gap-4; }
+  .cloud-card-head > div:nth-child(2) { @apply min-w-0 flex-1; }
+  .cloud-card-head h2, .cloud-card > div > h2 { @apply mt-1 mb-1; }
+  .cloud-card-head p, .cloud-card > div > p { @apply m-0 leading-6 text-[var(--muted)]; }
+  .cloud-signout { @apply flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg border border-[var(--line)] bg-[var(--surface-2)] px-3 py-2 text-xs font-semibold text-[var(--muted)]; }
+  .cloud-auth-options, .cloud-session { @apply mt-6 grid gap-3; }
+  .cloud-provider { @apply flex w-full cursor-pointer items-center justify-center gap-2 rounded-[10px] border border-[var(--line)] bg-[var(--surface-2)] px-4 py-3 font-bold text-[var(--text)]; }
+  .cloud-provider:hover, .cloud-signout:hover { @apply border-[var(--accent)] text-[var(--accent)]; }
+  .cloud-provider.google { @apply border-[#747775] bg-white text-[#1f1f1f]; }
+  .cloud-provider.google:hover { @apply border-[#747775] text-[#1f1f1f]; }
+  .cloud-provider.discord { @apply border-[#5865f266] bg-[#5865f214]; }
+  .cloud-provider > svg { @apply shrink-0; }
+  .cloud-divider { @apply flex items-center gap-3 text-[10px] font-bold tracking-[1px] text-[var(--muted)] uppercase; }
+  .cloud-divider::before, .cloud-divider::after { content:''; @apply h-px flex-1 bg-[var(--line)]; }
+  .cloud-email { @apply grid gap-1.5; }
+  .cloud-email label { @apply text-xs font-semibold text-[var(--muted)]; }
+  .cloud-email > div { @apply flex gap-2; }
+  .cloud-email input { @apply min-w-0 flex-1 rounded-[10px] border border-[var(--line)] bg-[var(--surface-2)] px-3 py-2.5 text-[var(--text)] outline-0; }
+  .cloud-email .primary { @apply w-auto px-4; }
+  .cloud-local { @apply flex items-center gap-3 rounded-[10px] border border-[var(--line)] px-4 py-3 text-[var(--text)] no-underline; }
+  .cloud-local > span, .cloud-user > span, .cloud-safe-state > span { @apply flex min-w-0 flex-col; }
+  .cloud-local small, .cloud-user small, .cloud-safe-state small { @apply text-[var(--muted)]; }
+  .cloud-user { @apply flex items-center gap-3 rounded-[10px] bg-[var(--surface-2)] px-4 py-3; }
+  .cloud-user > span { @apply flex-1; }
+  .cloud-user strong { @apply truncate; }
+  .cloud-login-method { @apply ml-auto flex shrink-0 items-center gap-2 border-l border-[var(--line)] pl-4; }
+  .cloud-login-copy { @apply flex flex-col; }
+  .cloud-login-method small { @apply text-[9px] text-[var(--muted)]; }
+  .cloud-login-method strong { @apply text-xs; }
+  .cloud-summaries { @apply grid grid-cols-2 gap-3; }
+  .cloud-summaries > div { @apply rounded-xl border border-[var(--line)] bg-[var(--surface-2)] p-4; }
+  .cloud-summaries span, .cloud-summaries small { @apply block text-xs text-[var(--muted)]; }
+  .cloud-summaries strong { @apply my-1 block text-2xl; }
+  .cloud-import { @apply flex items-center justify-between gap-5 rounded-xl border border-[color-mix(in_srgb,var(--accent)_32%,var(--line))] bg-[color-mix(in_srgb,var(--accent)_8%,var(--surface))] p-4; }
+  .cloud-import p { @apply mt-1 mb-0 text-sm text-[var(--muted)]; }
+  .cloud-import .primary { @apply w-auto shrink-0 px-4; }
+  .cloud-safe-state { @apply flex items-center gap-3 rounded-xl border border-[#3aaf8266] bg-[#3aaf8214] p-4 text-[#55c99b]; }
+  .cloud-preview-notice { @apply flex items-center gap-3 rounded-xl border border-[#d39b2066] bg-[#d39b2014] p-4 text-[#d9a72e]; }
+  .cloud-preview-notice > span { @apply flex flex-col; }
+  .cloud-preview-notice small { @apply text-[var(--muted)]; }
   .notice { @apply my-5 flex items-center gap-2 rounded-xl border px-4 py-3 text-sm font-semibold; }
   .notice.error { @apply border-[#d45b6466] bg-[#d45b6414] text-[#e16b74]; }
   .notice.success { @apply border-[#3aaf8266] bg-[#3aaf8214] text-[#55c99b]; }
@@ -281,8 +339,11 @@
   .sidebar { @apply hidden; }
   .main { @apply ml-0; }
   .topbar { @apply h-15.5 px-3.5 py-2.5; }
-  .status-dot { @apply hidden; }
-  .backup-shortcut span { @apply hidden; }
+  .storage-status { @apply h-8 gap-0; }
+  .storage-indicator { @apply h-4 text-[10px] leading-4; }
+  .header-account { @apply max-w-40; }
+  .header-account-copy strong { @apply max-w-24; }
+  .header-account-copy small { @apply hidden; }
   main { @apply px-3.5 pt-6.5 pb-22; }
   .page-head { @apply flex-col; }
   .dex-page-head { @apply top-15.5; }
@@ -299,6 +360,12 @@
   .not-found-copy p { @apply mx-auto; }
   .not-found-actions { @apply justify-center; }
   .backup-preview { @apply flex-col items-start; }
+  .cloud-card-head { @apply flex-wrap; }
+  .cloud-signout { @apply ml-15; }
+  .cloud-user { @apply flex-wrap; }
+  .cloud-login-method { @apply ml-8 w-full border-t border-l-0 pt-3 pl-0; }
+  .cloud-email > div, .cloud-import { @apply flex-col items-stretch; }
+  .cloud-email .primary, .cloud-import .primary { @apply w-full; }
   .filters { @apply flex-col; }
   .dex-section-selector { @apply w-full justify-start; }
   .type-selector { @apply w-full; }
