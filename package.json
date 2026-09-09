@@ -10,6 +10,7 @@
     "typecheck": "tsc -b --pretty false",
     "lint": "eslint .",
     "test": "vitest run",
+    "test:e2e": "playwright test",
     "test:watch": "vitest",
     "data:generate:species": "node scripts/generate-species.mjs /tmp/pokemon-species.json",
     "data:generate:types": "node scripts/generate-types.mjs /tmp/pokemon-living-dex-types.csv",
