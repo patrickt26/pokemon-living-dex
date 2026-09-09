@@ -29,6 +29,20 @@ describe('HeaderAccountButton',()=>{
     expect(account.querySelector(`[data-auth-provider="${provider}"]`)).toBeInTheDocument();
   });
 
+
+  it('prefers the Discord profile display name over the username',()=>{
+    const session={user:{app_metadata:{provider:'discord'},user_metadata:{global_name:'Misty Waterflower',full_name:'misty_user',name:'misty_user#0'}}} as unknown as Session;
+    render(<MemoryRouter><HeaderAccountButton session={session} loading={false}/></MemoryRouter>);
+    expect(screen.getByRole('link',{name:'My account: Misty Waterflower'})).toBeInTheDocument();
+    expect(screen.queryByText('misty_user')).not.toBeInTheDocument();
+  });
+
+  it('falls back to the Discord username when no profile display name is set',()=>{
+    const session={user:{app_metadata:{provider:'discord'},user_metadata:{global_name:null,full_name:'misty_user',name:'misty_user#0'}}} as unknown as Session;
+    render(<MemoryRouter><HeaderAccountButton session={session} loading={false}/></MemoryRouter>);
+    expect(screen.getByRole('link',{name:'My account: misty_user'})).toBeInTheDocument();
+  });
+
   it('does not use an email address as the visible name',()=>{
     const session={user:{email:'brock@example.com',app_metadata:{provider:'email'},user_metadata:{}}} as unknown as Session;
     render(<MemoryRouter><HeaderAccountButton session={session} loading={false}/></MemoryRouter>);
