@@ -42,6 +42,10 @@ O PWA usa um service worker pequeno para o shell e cache em tempo de execução.
 
 `PokemonDataSource` isola a origem dos metadados. `LocalPokemonDataSource` fornece dados empacotados e normalizados. Uma etapa de geração pode consultar PokéAPI em desenvolvimento/CI, validar ids e gravar JSON/TypeScript versionado; a execução do app continua offline-first e sem requisições por página.
 
-## API Fastify futura
+## Nuvem atual e sincronização futura
 
-Implemente `ApiCollectionRepository` usando HTTP e mantendo o contrato. Troque a instância em `app/dependencies.ts`; serviços, hooks, regras e componentes permanecem iguais. O backend pode persistir as mesmas entidades no PostgreSQL, adicionar autenticação e sincronização. TanStack Query já oferece a fronteira de cache adequada para essa evolução.
+Supabase Auth oferece login por Google, Discord e Magic Link. `CloudCollectionService` usa funções PostgreSQL para consultar o resumo remoto, importar atomicamente uma coleção local para uma nuvem vazia e restaurar um snapshot quando o dispositivo está vazio. Row Level Security associa todas as linhas ao `auth.uid()` da sessão.
+
+Essa primeira etapa não substitui `DexieCollectionRepository`: IndexedDB continua atendendo a navegação e as edições, enquanto o header apenas compara os resumos local e remoto. Não há sincronização automática bidirecional nem resolução de conflitos.
+
+Para a evolução futura, implemente um repositório sincronizado preservando o contrato de `CollectionRepository`. TanStack Query já oferece a fronteira de cache; serviços, regras de domínio e componentes podem permanecer estáveis enquanto uma camada específica define versionamento, conflitos, estado offline e reprocessamento de mudanças.
