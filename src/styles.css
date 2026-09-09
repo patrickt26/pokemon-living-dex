@@ -53,6 +53,8 @@
   .sidebar-backup-link { @apply flex items-center gap-3 rounded-[10px] p-3 font-semibold text-[var(--muted)] no-underline; }
   .sidebar-backup-link:hover, .sidebar-backup-link.active { @apply bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] text-[var(--accent)]; }
   .theme { @apply cursor-pointer; }
+  .creator-credit { @apply flex items-center justify-between gap-2 px-3 text-[10px] text-[var(--muted)] no-underline transition-colors; }
+  .creator-credit:hover { @apply text-[var(--accent)]; }
   .language-switcher { @apply flex gap-1 rounded-lg bg-[var(--surface-2)] p-1; }
   .language-switcher button { @apply flex-1 cursor-pointer rounded-md border-0 bg-transparent px-2 py-1.5 text-[10px] font-bold text-[var(--muted)]; }
   .language-switcher button.active { @apply bg-[var(--surface)] text-[var(--accent)] shadow-sm; }
