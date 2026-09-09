@@ -135,7 +135,7 @@
   .segmented button:hover, .toggle-row button:hover { @apply text-[var(--text)]; }
   .segmented button.active, .toggle-row button.active { @apply bg-[var(--surface)] text-[var(--accent)] shadow-sm; animation:segment-select 180ms ease-out; }
 
-  .pokemon-box { @apply mb-5.5 overflow-hidden; content-visibility: auto; contain-intrinsic-size: 460px; }
+  .pokemon-box { @apply mb-5.5 overflow-hidden; }
   .pokemon-box > header { @apply grid grid-cols-[1fr_auto_1fr] items-center border-b border-[var(--line)] px-5 py-3.5; }
   .pokemon-box > header h2 { @apply m-0 truncate text-[13px] tracking-[1.2px]; }
   .pokemon-box > header span { @apply text-xs text-[var(--muted)]; }
