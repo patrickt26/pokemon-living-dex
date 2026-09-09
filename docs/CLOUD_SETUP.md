@@ -17,9 +17,10 @@ The production Content Security Policy in `vercel.json` allows connections only 
 Add these redirect URLs in Supabase Authentication URL Configuration:
 
 - `http://localhost:5173/backup`
+- `https://living-dex-companion.vercel.app/backup`
 - `https://pokemon-living-dex.vercel.app/backup`
 
-Set the production Site URL to `https://pokemon-living-dex.vercel.app`.
+Set the production Site URL to `https://living-dex-companion.vercel.app`. The older `pokemon-living-dex.vercel.app` address remains allow-listed only for compatibility while it is still reachable.
 
 ## Google and Discord
 

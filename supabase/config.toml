@@ -1,8 +1,26 @@
 project_id = "pokemon-living-dex"
 
 [auth]
-site_url = "https://pokemon-living-dex.vercel.app"
+site_url = "https://living-dex-companion.vercel.app"
 additional_redirect_urls = [
   "http://localhost:5173/backup",
+  "https://living-dex-companion.vercel.app/backup",
   "https://pokemon-living-dex.vercel.app/backup",
 ]
+enable_anonymous_sign_ins = false
+enable_manual_linking = false
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+refresh_token_reuse_interval = 10
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = true
+max_frequency = "1m"
+otp_length = 8
+otp_expiry = 3600
+
+[auth.sms]
+enable_signup = false
+enable_confirmations = false
