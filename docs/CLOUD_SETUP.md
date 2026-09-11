@@ -5,7 +5,7 @@ The cloud account feature is optional. Without its environment variables, the ap
 ## Supabase project
 
 1. Create a Supabase project.
-2. Apply every file in `supabase/migrations` in timestamp order with the Supabase CLI. If using the SQL editor, apply the create migration first and the hardening migration second.
+2. Apply every file in `supabase/migrations` in timestamp order with the Supabase CLI. The continuous-sync migration must be applied after the create and hardening migrations.
 3. Copy `.env.example` to `.env.local` and fill in the project URL and publishable key. Never place a secret or service-role key in the frontend.
 
 The browser may contain only the Supabase publishable key. The secret key, legacy `service_role` key, database password and OAuth client secrets must never use a `VITE_` variable or enter the Git repository.
@@ -41,10 +41,12 @@ Before enabling authentication for the public:
 - Enable MFA on every Supabase organization administrator account.
 - Enable SSL enforcement and restrict database network access when the plan supports it.
 - Register only exact production and local redirect URLs; do not use broad wildcard redirects.
-- Verify that all migrations, including `20260908213000_harden_cloud_collection.sql`, are applied.
+- Verify that all migrations, including `20260908213000_harden_cloud_collection.sql` and `20260911150000_add_continuous_collection_sync.sql`, are applied.
 
 The application does not copy a user's name or email into the collection tables or IndexedDB. Those values remain in Supabase Auth and are read from the active session only to identify the connected account in the interface.
 
-## Safe first migration
+## Continuous synchronization
 
-The first release only imports a local collection into an empty cloud account. The PostgreSQL function performs the import atomically and rejects it if remote entries already exist. It never deletes or rewrites IndexedDB data. Automatic two-way synchronization is intentionally deferred.
+IndexedDB remains the primary store. The first upload to an empty account still requires explicit confirmation, preventing a collection left in a shared browser from being copied to a different account. After that link is established, the app records a per-user cloud revision in local storage and compares deterministic snapshots. Device-only changes are uploaded; cloud-only changes are restored locally. Uploads use an expected revision inside a PostgreSQL transaction so stale clients cannot overwrite newer data.
+
+If both sides changed since their shared revision, synchronization stops without modifying either collection. The account screen asks the user to keep either the device snapshot or the cloud snapshot. Local edits made offline remain available while synchronization is unavailable and are retried when the tab regains focus or the periodic check runs.

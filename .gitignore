@@ -7,3 +7,6 @@ dist/
 .env.*
 !.env.example
 supabase/.temp/
+test-results/
+playwright-report/
+blob-report/

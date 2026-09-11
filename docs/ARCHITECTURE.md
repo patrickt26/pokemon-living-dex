@@ -42,10 +42,10 @@ O PWA usa um service worker pequeno para o shell e cache em tempo de execução.
 
 `PokemonDataSource` isola a origem dos metadados. `LocalPokemonDataSource` fornece dados empacotados e normalizados. Uma etapa de geração pode consultar PokéAPI em desenvolvimento/CI, validar ids e gravar JSON/TypeScript versionado; a execução do app continua offline-first e sem requisições por página.
 
-## Nuvem atual e sincronização futura
+## Nuvem e sincronização
 
-Supabase Auth oferece login por Google, Discord e Magic Link. `CloudCollectionService` usa funções PostgreSQL para consultar o resumo remoto, importar atomicamente uma coleção local para uma nuvem vazia e restaurar um snapshot quando o dispositivo está vazio. Row Level Security associa todas as linhas ao `auth.uid()` da sessão.
+Supabase Auth oferece login por Google, Discord e Magic Link. `CloudCollectionService` transporta snapshots entre IndexedDB e funções PostgreSQL. Row Level Security associa todas as linhas ao `auth.uid()` da sessão.
 
-Essa primeira etapa não substitui `DexieCollectionRepository`: IndexedDB continua atendendo a navegação e as edições, enquanto o header apenas compara os resumos local e remoto. Não há sincronização automática bidirecional nem resolução de conflitos.
+`CloudCollectionSyncService` mantém uma baseline por usuário com revisão remota e fingerprint determinístico. O primeiro envio a uma conta vazia exige confirmação; depois desse vínculo, se apenas o dispositivo mudou, envia o snapshot local usando compare-and-swap pela revisão esperada. Se apenas a nuvem mudou, substitui o IndexedDB atomicamente. A reconciliação ocorre após edições, ao recuperar foco e em verificações periódicas.
 
-Para a evolução futura, implemente um repositório sincronizado preservando o contrato de `CollectionRepository`. TanStack Query já oferece a fronteira de cache; serviços, regras de domínio e componentes podem permanecer estáveis enquanto uma camada específica define versionamento, conflitos, estado offline e reprocessamento de mudanças.
+Quando os dois lados divergem desde a mesma baseline, nenhum deles é alterado automaticamente. A interface exige que o usuário escolha o snapshot do dispositivo ou da nuvem. A resolução substitui a coleção completa de forma atômica; merge por campo não é tentado. IndexedDB continua atendendo todas as edições, inclusive offline, e o sincronizador não altera o contrato de `CollectionRepository`.

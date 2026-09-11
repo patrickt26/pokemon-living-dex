@@ -24,7 +24,7 @@ The application currently includes:
 - Versioned JSON backups with validation, preview, merge, and replace modes.
 - CSV export for external analysis or spreadsheets.
 - Optional Google, Discord, and email Magic Link authentication.
-- Safe one-time import from an empty local/cloud side and cloud restoration.
+- Automatic revisioned synchronization with explicit conflict resolution.
 - English and Brazilian Portuguese interfaces.
 - Responsive desktop/mobile layouts, dark/light themes, onboarding, and PWA support.
 
@@ -46,12 +46,12 @@ flowchart LR
 
 - **Local collection:** IndexedDB is the primary data store used while navigating and editing the collection.
 - **Optional account:** authentication is not required for local use.
-- **Cloud copy:** authenticated users can import a local collection into an empty cloud collection.
-- **Restore:** a cloud snapshot can be restored when the current device collection is empty.
-- **Status indicators:** the header compares local and cloud summaries; it does not imply continuous synchronization.
-- **Current limitation:** automatic two-way synchronization and conflict resolution are not implemented yet.
+- **Cloud synchronization:** after the user confirms the first upload, authenticated users automatically push local-only changes and receive cloud-only changes.
+- **Conflict safety:** each device tracks its last synchronized revision. When both sides changed, neither is overwritten until the user chooses which copy to keep.
+- **Status indicators:** the header reports disconnected, syncing, synchronized, conflict, and error states.
+- **Offline behavior:** local edits continue in IndexedDB and are reconciled when connectivity returns, the tab regains focus, or the periodic check runs.
 
-Uploading to the cloud does not delete local data. Cloud import is atomic and refuses to overwrite a non-empty cloud collection.
+Cloud replacement is atomic and uses an expected revision, so a stale device cannot silently overwrite a newer remote collection.
 
 ## Technology stack
 
@@ -173,11 +173,11 @@ The code separates domain rules from frameworks and persistence:
 1. `domain` defines stable models and pure projections.
 2. `data` provides a replaceable Pokémon catalog source.
 3. `repositories` define persistence operations. Components do not import Dexie directly.
-4. `services` implement use cases such as collection editing, backup validation, and cloud transfer.
+4. `services` implement use cases such as collection editing, backup validation, and revisioned cloud synchronization.
 5. `hooks` connect services to React and TanStack Query.
 6. `components` and `pages` render the user experience.
 
-This boundary allows a future synchronized repository or API to replace local persistence without rewriting domain rules or most UI components. See [Architecture](docs/ARCHITECTURE.md) for the detailed model and extension paths.
+This boundary keeps local persistence independent from cloud reconciliation without rewriting domain rules or most UI components. See [Architecture](docs/ARCHITECTURE.md) for the detailed model.
 
 ## Data model
 
@@ -226,7 +226,7 @@ Supabase Auth supports:
 - Automatic identity linking when providers return the same verified email.
 - PKCE authentication flow in the browser client.
 
-The cloud database stores collection entries under the authenticated user's UUID. PostgreSQL RLS policies scope every operation to `auth.uid()`. The import RPC validates authentication, payload type, maximum entry count, field lengths, and numeric limits before committing atomically.
+The cloud database stores collection entries under the authenticated user's UUID. PostgreSQL RLS policies scope every operation to `auth.uid()`. Sync RPCs validate authentication, payload type, maximum entry count, field lengths, numeric limits, and the expected cloud revision before committing atomically.
 
 Names and email addresses remain in Supabase Auth. The application reads them from the current session to identify the account but does not copy them into collection tables or IndexedDB.
 
@@ -288,8 +288,8 @@ Production uses the SPA fallback configured in `vercel.json`, so client-side rou
 
 ## Current limitations and roadmap
 
-- Cloud storage currently supports safe import and restore, not live two-way synchronization.
-- Conflict resolution between devices is intentionally deferred until synchronization is designed.
+- Cloud synchronization is snapshot-based and checks for remote changes every 30 seconds and when the tab regains focus; it does not require realtime subscriptions.
+- Simultaneous local and remote edits require the user to choose which complete collection to keep; field-level merging is not attempted.
 - Offline availability depends on the app and individual remote assets having been loaded previously.
 - Custom SMTP, CAPTCHA, administrator MFA, and database network restrictions require external account or infrastructure configuration.
 - Pokémon catalog updates are generated and reviewed manually rather than fetched at runtime.

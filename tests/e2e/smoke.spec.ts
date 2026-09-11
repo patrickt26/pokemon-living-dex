@@ -3,7 +3,8 @@ import { test, expect } from '@playwright/test';
 test('production smoke test loads the app and a Pokémon sprite', async ({ page }) => {
   const failedSpriteRequests: string[] = [];
   page.on('requestfailed', request => {
-    if (request.resourceType() === 'image' && request.url().includes('sprites')) {
+    const isExpectedReloadCancellation = request.failure()?.errorText === 'net::ERR_ABORTED';
+    if (request.resourceType() === 'image' && request.url().includes('sprites') && !isExpectedReloadCancellation) {
       failedSpriteRequests.push(request.url());
     }
   });

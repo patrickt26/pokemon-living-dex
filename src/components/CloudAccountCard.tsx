@@ -10,6 +10,8 @@ import { useSupabaseSession } from '../hooks/useSupabaseSession';
 import { useI18n } from '../i18n';
 import { isCloudConfigured, supabase } from '../lib/supabase';
 import { CloudCollectionService, type CloudCollectionSummary } from '../services/CloudCollectionService';
+import { CloudCollectionSyncService } from '../services/CloudCollectionSyncService';
+import { useCloudSyncStore } from '../store/cloudSyncStore';
 import { AuthProviderIcon, DiscordIcon, GoogleIcon } from './AuthProviderIcon';
 
 const emptySummary:CloudCollectionSummary={entries:0,species:0,totalQuantity:0};
@@ -25,12 +27,15 @@ export function CloudAccountCard(){
   const [local,setLocal]=useState<CloudCollectionSummary>(emptySummary);
   const [remote,setRemote]=useState<CloudCollectionSummary>(emptySummary);
   const service=useMemo(()=>supabase?new CloudCollectionService(collectionRepository,supabase):null,[]);
+  const syncService=useMemo(()=>supabase?new CloudCollectionSyncService(collectionRepository,supabase):null,[]);
+  const syncStatus=useCloudSyncStore(state=>state.status);
+  const setSyncStatus=useCloudSyncStore(state=>state.setStatus);
 
   useEffect(()=>{
     if(!session||!service)return;
     setBusy(true);setError('');
     Promise.all([service.getLocalSummary(),service.getCloudSummary()]).then(([localSummary,remoteSummary])=>{setLocal(localSummary);setRemote(remoteSummary)}).catch(()=>setError(t('cloudLoadError'))).finally(()=>setBusy(false));
-  },[session,service,t]);
+  },[session,service,syncStatus,t]);
 
   const oauth=async(provider:'google'|'discord')=>{
     if(!supabase)return;
@@ -49,9 +54,9 @@ export function CloudAccountCard(){
   };
 
   const importLocal=async()=>{
-    if(!service||remote.entries>0)return;
+    if(!session||!service||!syncService||remote.entries>0)return;
     setBusy(true);setError('');setMessage('');
-    try{const summary=await service.importLocalCollection();setRemote(summary);await queryClient.invalidateQueries({queryKey:cloudCollectionSummaryKey});setMessage(t('cloudImportSuccess'))}
+    try{const result=await syncService.keepDeviceCollection(session.user.id);setSyncStatus(result.status);if(result.status==='conflict')return;const summary=await service.getCloudSummary();setRemote(summary);await queryClient.invalidateQueries({queryKey:cloudCollectionSummaryKey});setMessage(t('cloudImportSuccess'))}
     catch{setError(t('cloudImportError'))}
     finally{setBusy(false)}
   };
@@ -61,6 +66,19 @@ export function CloudAccountCard(){
     setBusy(true);setError('');setMessage('');
     try{const summary=await service.restoreCloudCollection();setLocal(summary);await queryClient.invalidateQueries({queryKey:['collection']});setMessage(t('cloudRestoreSuccess'))}
     catch{setError(t('cloudRestoreError'))}
+    finally{setBusy(false)}
+  };
+
+  const resolveConflict=async(source:'device'|'cloud')=>{
+    if(!session||!syncService)return;
+    setBusy(true);setError('');setMessage('');setSyncStatus('syncing');
+    try{
+      const result=source==='device'?await syncService.keepDeviceCollection(session.user.id):await syncService.keepCloudCollection(session.user.id);
+      setSyncStatus(result.status);
+      if(result.status==='conflict')return;
+      await Promise.all([queryClient.invalidateQueries({queryKey:['collection']}),queryClient.invalidateQueries({queryKey:cloudCollectionSummaryKey})]);
+      setMessage(t(source==='device'?'cloudKeepDeviceSuccess':'cloudKeepCloudSuccess'));
+    }catch{setSyncStatus('error');setError(t('cloudSyncError'))}
     finally{setBusy(false)}
   };
 
@@ -93,7 +111,7 @@ export function CloudAccountCard(){
     </div>:<div className="cloud-session">
       <div className="cloud-user"><UserRound size={18}/><span><small>{t('connectedAs')}</small><strong>{session.user.email}</strong></span><div className="cloud-login-method"><AuthProviderIcon provider={sessionProvider}/><span className="cloud-login-copy"><small>{t('loginMethod')}</small><strong>{providerLabel}</strong></span></div></div>
       <div className="cloud-summaries"><div><span>{t('thisDevice')}</span><strong>{local.totalQuantity}</strong><small>{local.species} {t('species')} · {local.entries} {t('aggregatedEntries')}</small></div><div><span>{t('cloud')}</span><strong>{remote.totalQuantity}</strong><small>{remote.species} {t('species')} · {remote.entries} {t('aggregatedEntries')}</small></div></div>
-      {remote.entries===0&&local.entries>0?<div className="cloud-import"><div><strong>{t('localCollectionFound')}</strong><p>{t('localCollectionFoundDescription')}</p></div><button className="primary" disabled={busy} onClick={importLocal}><Upload size={17}/>{t('saveToCloud')}</button></div>:remote.entries>0&&local.entries===0?<div className="cloud-import"><div><strong>{t('remoteCollectionFound')}</strong><p>{t('remoteCollectionFoundDescription')}</p></div><ConfirmButton className="primary" title={t('restoreCloudQuestion')} description={t('restoreCloudDescription')} confirmLabel={t('restoreOnDevice')} disabled={busy} onConfirm={restoreCloud}><Download size={17}/>{t('restoreOnDevice')}</ConfirmButton></div>:remote.entries>0&&local.entries>0?<div className="cloud-safe-state"><ShieldCheck size={18}/><span><strong>{t('cloudCollectionFound')}</strong><small>{t('cloudSyncComingSoon')}</small></span></div>:null}
+      {syncStatus==='conflict'?<div className="cloud-import"><div><strong>{t('cloudConflictTitle')}</strong><p>{t('cloudConflictDescription')}</p></div><div className="button-row"><ConfirmButton className="secondary-action" title={t('keepDeviceQuestion')} description={t('keepDeviceDescription')} confirmLabel={t('keepDevice')} disabled={busy} onConfirm={()=>resolveConflict('device')}><Upload size={17}/>{t('keepDevice')}</ConfirmButton><ConfirmButton className="primary" title={t('keepCloudQuestion')} description={t('keepCloudDescription')} confirmLabel={t('keepCloud')} disabled={busy} onConfirm={()=>resolveConflict('cloud')}><Download size={17}/>{t('keepCloud')}</ConfirmButton></div></div>:syncStatus==='syncing'?<div className="cloud-safe-state"><Cloud size={18}/><span><strong>{t('cloudSyncing')}</strong><small>{t('cloudSyncingDescription')}</small></span></div>:syncStatus==='synced'?<div className="cloud-safe-state"><ShieldCheck size={18}/><span><strong>{t('cloudSyncActive')}</strong><small>{t('cloudSyncActiveDescription')}</small></span></div>:remote.entries===0&&local.entries>0?<div className="cloud-import"><div><strong>{t('localCollectionFound')}</strong><p>{t('localCollectionFoundDescription')}</p></div><button className="primary" disabled={busy} onClick={importLocal}><Upload size={17}/>{t('saveToCloud')}</button></div>:remote.entries>0&&local.entries===0?<div className="cloud-import"><div><strong>{t('remoteCollectionFound')}</strong><p>{t('remoteCollectionFoundDescription')}</p></div><ConfirmButton className="primary" title={t('restoreCloudQuestion')} description={t('restoreCloudDescription')} confirmLabel={t('restoreOnDevice')} disabled={busy} onConfirm={restoreCloud}><Download size={17}/>{t('restoreOnDevice')}</ConfirmButton></div>:null}
     </div>}
     {error&&<div className="notice error" role="alert">{error}</div>}{message&&<div className="notice success" role="status"><ShieldCheck size={18}/>{message}</div>}
   </section>;
