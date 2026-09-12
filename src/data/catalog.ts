@@ -26,7 +26,7 @@ const unownNames = [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ','!','?'];
 const specialForms: PokemonForm[] = [
   ...unownNames.map((name)=>{const slug=name.toLowerCase().replace('!','exclamation').replace('?','question');return alt(201,slug,name,201,{sprite:unownSprite(slug),shinySprite:unownSprite(slug,true),formGroupIds:['unown']})}),
   ...['Normal','Heat','Wash','Frost','Fan','Mow'].map((name,index)=>alt(479,name.toLowerCase(),name,index === 0 ? 479 : 10007 + index,{formGroupIds:['rotom']})),
-  ...['Natural','Heart','Star','Diamond','Debutante','Matron','Dandy','La Reine','Kabuki','Pharaoh'].map((name)=>alt(676,name.toLowerCase().replaceAll(' ','-'),name,676,{formGroupIds:['furfrou']})),
+  ...['Natural','Heart','Star','Diamond','Debutante','Matron','Dandy','La Reine','Kabuki','Pharaoh'].map((name)=>{const slug=name.toLowerCase().replaceAll(' ','-');return alt(676,slug,name,676,{sprite:slug==='natural'?sprite(676):formSprite(676,slug),shinySprite:slug==='natural'?sprite(676,true):formSprite(676,slug,true),formGroupIds:['furfrou']})}),
   ...[669,670].flatMap((number)=>['Red','Yellow','Orange','Blue','White'].map((name)=>{const slug=name.toLowerCase();return alt(number,slug,name,number,{sprite:formSprite(number,slug),shinySprite:formSprite(number,slug,true),formGroupIds:['flabebe-line']})})),
   alt(670,'eternal','Eternal',10061,{sprite:sprite(10061),shinySprite:sprite(10061,true),formGroupIds:['flabebe-line']}),
   ...['Red','Yellow','Orange','Blue','White'].map((name)=>{const slug=name.toLowerCase();return alt(671,slug,name,671,{sprite:formSprite(671,slug),shinySprite:formSprite(671,slug,true),formGroupIds:['flabebe-line']})})

@@ -100,6 +100,12 @@ describe('generated game dex membership', () => {
     expect(unown.find(form => form.name === '!')?.sprite).toContain('exclamation');
     expect(unown.find(form => form.name === '?')?.sprite).toContain('question');
 
+    const furfrouTrims = forms.filter(form => form.formGroupIds?.includes('furfrou'));
+    expect(furfrouTrims).toHaveLength(9);
+    expect(new Set(furfrouTrims.map(form => form.sprite)).size).toBe(9);
+    expect(new Set(furfrouTrims.map(form => form.shinySprite)).size).toBe(9);
+    expect(furfrouTrims.find(form => form.name === 'La Reine')?.sprite).toContain('676-la-reine.png');
+
     const flabebeLine = forms.filter(form => form.formGroupIds?.includes('flabebe-line'));
     expect(flabebeLine.filter(form => ['Red', 'Yellow', 'Orange', 'Blue', 'White'].includes(form.name))).toHaveLength(12);
     expect(flabebeLine.some(form => form.speciesId === 'species-670' && form.name === 'Eternal')).toBe(true);
