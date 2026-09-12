@@ -116,6 +116,23 @@ describe('generated game dex membership', () => {
     expect(formGroups.flatMap(group=>group.formIds).filter(id=>standardAliases.includes(id))).toEqual([]);
   });
 
+  it('includes the expanded cosmetic and permanent variant groups',()=>{
+    const expectedCounts:Record<string,number>={'burmy-line':4,basculin:2,'deerling-line':6,oricorio:3,lycanroc:2,urshifu:1,squawkabilly:3,tatsugiri:2,'poltchageist-line':2};
+    const variantIds=Object.entries(expectedCounts).flatMap(([groupId,count])=>{
+      const group=formGroups.find(candidate=>candidate.id===groupId);
+      expect(group?.formIds).toHaveLength(count);
+      return group?.formIds??[];
+    });
+    const variants=variantIds.map(id=>forms.find(form=>form.id===id)!);
+    expect(new Set(variants.map(form=>form.sprite)).size).toBe(variants.length);
+    expect(new Set(variants.map(form=>form.shinySprite)).size).toBe(variants.length);
+    expect(new Set(variants.map(form=>form.speciesId))).toEqual(new Set(['species-412','species-413','species-550','species-585','species-586','species-741','species-745','species-892','species-931','species-978','species-1012','species-1013']));
+    expect(forms.find(form=>form.id==='form-413-sandy')?.types).toEqual(['bug','ground']);
+    expect(forms.find(form=>form.id==='form-413-trash')?.types).toEqual(['bug','steel']);
+    expect(forms.find(form=>form.id==='form-741-sensu')?.types).toEqual(['ghost','flying']);
+    expect(forms.find(form=>form.id==='form-892-rapid-strike')?.types).toEqual(['fighting','water']);
+  });
+
   it('configures FRLG and Legends Z-A with their distinct Dex sections',()=>{
     const frlg=games.find(game=>game.id==='frlg')!;const pla=games.find(game=>game.id==='pla')!;const za=games.find(game=>game.id==='za')!;
     expect(frlg.dexSections?.map(section=>section.dexSpeciesIds.length)).toEqual([151,386]);

@@ -1,4 +1,4 @@
-import type { FormGroup, Game, PokemonForm, Species } from '../domain/models';
+import type { FormGroup, Game, PokemonForm, PokemonType, Species } from '../domain/models';
 import { isStandardVariantAlias } from '../domain/variantForms';
 import { generatedSpecies } from './generatedSpecies';
 import { generatedGameDexes } from './generatedGameDexes';
@@ -23,10 +23,22 @@ const regionalForms: PokemonForm[] = [
   alt(128,'paldea-combat','Paldean Combat Breed',10250,{region:'paldea'}),alt(128,'paldea-blaze','Paldean Blaze Breed',10251,{region:'paldea'}),alt(128,'paldea-aqua','Paldean Aqua Breed',10252,{region:'paldea'}),alt(194,'paldea','Paldean',10253,{region:'paldea'})
 ];
 const unownNames = [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ','!','?'];
+const fileVariant=(number:number,slug:string,name:string,groupId:string,types:readonly PokemonType[])=>alt(number,slug,name,number,{sprite:formSprite(number,slug),shinySprite:formSprite(number,slug,true),formGroupIds:[groupId],types});
+const idVariant=(number:number,slug:string,name:string,pokeApiId:number,groupId:string,types:readonly PokemonType[])=>alt(number,slug,name,pokeApiId,{formGroupIds:[groupId],types});
 const specialForms: PokemonForm[] = [
   ...unownNames.map((name)=>{const slug=name.toLowerCase().replace('!','exclamation').replace('?','question');return alt(201,slug,name,201,{sprite:unownSprite(slug),shinySprite:unownSprite(slug,true),formGroupIds:['unown']})}),
+  fileVariant(412,'sandy','Sandy Cloak','burmy-line',['bug']),fileVariant(412,'trash','Trash Cloak','burmy-line',['bug']),
+  idVariant(413,'sandy','Sandy Cloak',10004,'burmy-line',['bug','ground']),idVariant(413,'trash','Trash Cloak',10005,'burmy-line',['bug','steel']),
   ...['Normal','Heat','Wash','Frost','Fan','Mow'].map((name,index)=>alt(479,name.toLowerCase(),name,index === 0 ? 479 : 10007 + index,{formGroupIds:['rotom']})),
+  idVariant(550,'blue-striped','Blue-Striped',10016,'basculin',['water']),idVariant(550,'white-striped','White-Striped',10247,'basculin',['water']),
+  ...[585,586].flatMap((number)=>['Summer','Autumn','Winter'].map((name)=>fileVariant(number,name.toLowerCase(),name,'deerling-line',['normal','grass']))),
   ...['Natural','Heart','Star','Diamond','Debutante','Matron','Dandy','La Reine','Kabuki','Pharaoh'].map((name)=>{const slug=name.toLowerCase().replaceAll(' ','-');return alt(676,slug,name,676,{sprite:slug==='natural'?sprite(676):formSprite(676,slug),shinySprite:slug==='natural'?sprite(676,true):formSprite(676,slug,true),formGroupIds:['furfrou']})}),
+  idVariant(741,'pom-pom','Pom-Pom Style',10123,'oricorio',['electric','flying']),idVariant(741,'pau',"Pa'u Style",10124,'oricorio',['psychic','flying']),idVariant(741,'sensu','Sensu Style',10125,'oricorio',['ghost','flying']),
+  idVariant(745,'midnight','Midnight Form',10126,'lycanroc',['rock']),idVariant(745,'dusk','Dusk Form',10152,'lycanroc',['rock']),
+  idVariant(892,'rapid-strike','Rapid Strike Style',10191,'urshifu',['fighting','water']),
+  idVariant(931,'blue-plumage','Blue Plumage',10260,'squawkabilly',['normal','flying']),idVariant(931,'yellow-plumage','Yellow Plumage',10261,'squawkabilly',['normal','flying']),idVariant(931,'white-plumage','White Plumage',10262,'squawkabilly',['normal','flying']),
+  idVariant(978,'droopy','Droopy Form',10258,'tatsugiri',['dragon','water']),idVariant(978,'stretchy','Stretchy Form',10259,'tatsugiri',['dragon','water']),
+  fileVariant(1012,'artisan','Artisan Form','poltchageist-line',['grass','ghost']),fileVariant(1013,'masterpiece','Masterpiece Form','poltchageist-line',['grass','ghost']),
   ...[669,670].flatMap((number)=>['Red','Yellow','Orange','Blue','White'].map((name)=>{const slug=name.toLowerCase();return alt(number,slug,name,number,{sprite:formSprite(number,slug),shinySprite:formSprite(number,slug,true),formGroupIds:['flabebe-line']})})),
   alt(670,'eternal','Eternal',10061,{sprite:sprite(10061),shinySprite:sprite(10061,true),formGroupIds:['flabebe-line']}),
   ...['Red','Yellow','Orange','Blue','White'].map((name)=>{const slug=name.toLowerCase();return alt(671,slug,name,671,{sprite:formSprite(671,slug),shinySprite:formSprite(671,slug,true),formGroupIds:['flabebe-line']})})
@@ -34,9 +46,18 @@ const specialForms: PokemonForm[] = [
 export const forms = [...baseForms, ...regionalForms, ...specialForms];
 export const formGroups: FormGroup[] = [
   {id:'unown',name:'Unown Alphabet',description:'A–Z, ! and ?',formIds:specialForms.filter(f=>f.formGroupIds?.includes('unown')).map(f=>f.id)},
+  {id:'burmy-line',name:'Burmy and Wormadam Cloaks',description:'Sandy and Trash Cloaks',formIds:specialForms.filter(f=>f.formGroupIds?.includes('burmy-line')).map(f=>f.id)},
   {id:'rotom',name:'Rotom Appliances',description:'All appliance forms',formIds:specialForms.filter(f=>f.formGroupIds?.includes('rotom')).map(f=>f.id)},
+  {id:'basculin',name:'Basculin Stripes',description:'Blue-Striped and White-Striped forms',formIds:specialForms.filter(f=>f.formGroupIds?.includes('basculin')).map(f=>f.id)},
+  {id:'deerling-line',name:'Deerling and Sawsbuck Seasons',description:'Summer, Autumn and Winter forms',formIds:specialForms.filter(f=>f.formGroupIds?.includes('deerling-line')).map(f=>f.id)},
+  {id:'flabebe-line',name:'Flabébé Line Colors',description:'Flower color variations',formIds:specialForms.filter(f=>f.formGroupIds?.includes('flabebe-line')).map(f=>f.id)},
   {id:'furfrou',name:'Furfrou Trims',description:'Natural and styled trims',formIds:specialForms.filter(f=>f.formGroupIds?.includes('furfrou')).map(f=>f.id)},
-  {id:'flabebe-line',name:'Flabébé Line Colors',description:'Flower color variations',formIds:specialForms.filter(f=>f.formGroupIds?.includes('flabebe-line')).map(f=>f.id)}
+  {id:'oricorio',name:'Oricorio Styles',description:'Pom-Pom, Pa\'u and Sensu Styles',formIds:specialForms.filter(f=>f.formGroupIds?.includes('oricorio')).map(f=>f.id)},
+  {id:'lycanroc',name:'Lycanroc Forms',description:'Midnight and Dusk Forms',formIds:specialForms.filter(f=>f.formGroupIds?.includes('lycanroc')).map(f=>f.id)},
+  {id:'urshifu',name:'Urshifu Styles',description:'Rapid Strike Style',formIds:specialForms.filter(f=>f.formGroupIds?.includes('urshifu')).map(f=>f.id)},
+  {id:'squawkabilly',name:'Squawkabilly Plumages',description:'Blue, Yellow and White Plumages',formIds:specialForms.filter(f=>f.formGroupIds?.includes('squawkabilly')).map(f=>f.id)},
+  {id:'tatsugiri',name:'Tatsugiri Forms',description:'Droopy and Stretchy Forms',formIds:specialForms.filter(f=>f.formGroupIds?.includes('tatsugiri')).map(f=>f.id)},
+  {id:'poltchageist-line',name:'Poltchageist and Sinistcha Forms',description:'Artisan and Masterpiece Forms',formIds:specialForms.filter(f=>f.formGroupIds?.includes('poltchageist-line')).map(f=>f.id)}
 ];
 const allIds = species.map(s=>s.id);
 const toSpeciesIds = (numbers: readonly number[]) => numbers.map(number => `species-${number}`);
