@@ -133,6 +133,13 @@ describe('generated game dex membership', () => {
     expect(forms.find(form=>form.id==='form-892-rapid-strike')?.types).toEqual(['fighting','water']);
   });
 
+  it('uses meaningful names for default members of variant families',()=>{
+    const expectedNames:Record<string,string>={'form-201-default':'A','form-412-default':'Plant Cloak','form-413-default':'Plant Cloak','form-550-default':'Red-Striped','form-585-default':'Spring','form-586-default':'Spring','form-669-default':'Red Flower','form-670-default':'Red Flower','form-671-default':'Red Flower','form-741-default':'Baile Style','form-745-default':'Midday Form','form-892-default':'Single Strike Style','form-931-default':'Green Plumage','form-978-default':'Curly Form','form-1012-default':'Counterfeit Form','form-1013-default':'Unremarkable Form'};
+    for(const [formId,name] of Object.entries(expectedNames))expect(forms.find(form=>form.id===formId)?.name).toBe(name);
+    expect(forms.find(form=>form.id==='form-479-default')?.name).toBe('Standard');
+    expect(forms.find(form=>form.id==='form-676-default')?.name).toBe('Standard');
+  });
+
   it('configures FRLG and Legends Z-A with their distinct Dex sections',()=>{
     const frlg=games.find(game=>game.id==='frlg')!;const pla=games.find(game=>game.id==='pla')!;const za=games.find(game=>game.id==='za')!;
     expect(frlg.dexSections?.map(section=>section.dexSpeciesIds.length)).toEqual([151,386]);

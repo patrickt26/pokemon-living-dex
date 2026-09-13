@@ -13,8 +13,9 @@ const unownSprite = (slug: string, shiny = false) => {
   return `https://img.pokemondb.net/sprites/black-white/${shiny ? 'shiny' : 'normal'}/unown-${slug}.png`;
 };
 const rawSpecies = generatedSpecies;
+const baseFormNames:Partial<Record<number,string>>={201:'A',412:'Plant Cloak',413:'Plant Cloak',550:'Red-Striped',585:'Spring',586:'Spring',669:'Red Flower',670:'Red Flower',671:'Red Flower',741:'Baile Style',745:'Midday Form',892:'Single Strike Style',931:'Green Plumage',978:'Curly Form',1012:'Counterfeit Form',1013:'Unremarkable Form'};
 export const species: Species[] = rawSpecies.map(([number,name]) => ({ id: `species-${number}`, nationalDexNumber: number, name, defaultFormId: `form-${number}-default` }));
-const baseForms: PokemonForm[] = rawSpecies.map(([number]) => ({ id: `form-${number}-default`, speciesId: `species-${number}`, name: 'Standard', sprite: sprite(number), shinySprite: sprite(number, true), types:generatedPokemonTypes[number]??[] }));
+const baseForms: PokemonForm[] = rawSpecies.map(([number]) => ({ id: `form-${number}-default`, speciesId: `species-${number}`, name: baseFormNames[number]??'Standard', sprite: sprite(number), shinySprite: sprite(number, true), types:generatedPokemonTypes[number]??[] }));
 const alt = (speciesNumber:number, slug:string, name:string, pokeApiId:number, extra:Partial<PokemonForm>={}): PokemonForm => ({ id:`form-${speciesNumber}-${slug}`, speciesId:`species-${speciesNumber}`, name, sprite:sprite(pokeApiId), shinySprite:sprite(pokeApiId,true), types:generatedPokemonTypes[pokeApiId]??generatedPokemonTypes[speciesNumber]??[], ...extra });
 const regionalForms: PokemonForm[] = [
   ...([[19,10091],[20,10092],[26,10100],[27,10101],[28,10102],[37,10103],[38,10104],[50,10105],[51,10106],[52,10107],[53,10108],[74,10109],[75,10110],[76,10111],[88,10112],[89,10113],[103,10114],[105,10115]] as const).map(([number,id])=>alt(number,'alola','Alolan',id,{region:'alola'})),
