@@ -17,7 +17,7 @@ export function useDexCollectionActions({entries,entryIndex,gameId,ot,shiny,alph
   const {add,addMany,changeQuantity,removeMany}=useCollectionActions();
   const shinyValue=shiny==='shiny';const alphaValue=alpha==='alpha';
   const quickToggle=(form:PokemonForm)=>{const relevant=entryIndex.byFormId.get(form.id)??[];if(hasMultipleOrigins(relevant)){onSelect(form.id);return}const existing=relevant.find(entry=>entry.gameId===gameId&&entry.ownOT===(ot!=='other')&&entry.shiny===shinyValue&&entry.alpha===alphaValue)??relevant[0];if(existing)changeQuantity.mutate({id:existing.id,quantity:existing.quantity-1});else add.mutate({speciesId:form.speciesId,formId:form.id,gameId,originGameId:gameId,ownOT:ot!=='other',shiny:shinyValue,alpha:alphaValue,quantity:1})};
-  const addForms=(forms:PokemonForm[],eligible:(form:PokemonForm)=>boolean=()=>true)=>addMany.mutate(forms.filter(eligible).map(form=>({speciesId:form.speciesId,formId:form.id,gameId,originGameId:gameId,ownOT:true,shiny:shinyValue,alpha:alphaValue,quantity:1})));
+  const addForms=(forms:PokemonForm[],eligible:(form:PokemonForm)=>boolean=()=>true,targetGameId=gameId)=>addMany.mutate(forms.filter(eligible).map(form=>({speciesId:form.speciesId,formId:form.id,gameId:targetGameId,originGameId:targetGameId,ownOT:true,shiny:shinyValue,alpha:alphaValue,quantity:1})));
   const clearForms=(forms:PokemonForm[])=>{const ids=new Set(forms.map(form=>form.id));removeMany.mutate(entries.filter(entry=>ids.has(entry.formId)&&(shiny==='all'||entry.shiny===shinyValue)&&(alpha==='all'||entry.alpha===alphaValue)).map(entry=>entry.id))};
   return {quickToggle,addForms,clearForms,addMany,removeMany};
 }

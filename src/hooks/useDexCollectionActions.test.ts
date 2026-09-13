@@ -33,4 +33,10 @@ describe('useDexCollectionActions',()=>{
     expect(actions.addMany.mutate).toHaveBeenCalledWith([{speciesId:form.speciesId,formId:form.id,gameId:'home',originGameId:'home',ownOT:true,shiny:true,alpha:true,quantity:1}]);
     expect(actions.removeMany.mutate).toHaveBeenCalledWith(['entry-1']);
   });
+
+  it('can add a form collection to a selected game',()=>{
+    const {result}=renderHook(()=>useDexCollectionActions({entries:[],entryIndex:indexCollectionEntries([]),gameId:'home',ot:'all',shiny:'all',alpha:'all',onSelect:vi.fn()}));
+    act(()=>result.current.addForms([form],()=>true,'sv'));
+    expect(actions.addMany.mutate).toHaveBeenCalledWith([{speciesId:form.speciesId,formId:form.id,gameId:'sv',originGameId:'sv',ownOT:true,shiny:false,alpha:false,quantity:1}]);
+  });
 });

@@ -226,6 +226,14 @@
   .confirm-actions button { @apply cursor-pointer rounded-lg border border-[var(--line)] bg-[var(--surface-2)] px-4 py-2 text-sm font-bold text-[var(--text)]; }
   .confirm-actions .confirm-danger { @apply border-[#d45b64] bg-[#d45b64] text-white; }
   .confirm-actions .confirm-danger:hover { @apply bg-[#bf4b54]; }
+  .bulk-add-icon { @apply mb-4 grid size-11 place-items-center rounded-xl bg-[color-mix(in_srgb,var(--accent)_14%,transparent)] text-[var(--accent)]; }
+  .bulk-add-dialog .confirm-copy > span { @apply text-[var(--accent)]; }
+  .bulk-add-game { @apply mt-5 flex flex-col gap-2 text-xs font-bold text-[var(--muted)] uppercase; }
+  .bulk-add-game select { @apply cursor-pointer rounded-lg border border-[var(--line)] bg-[var(--surface-2)] p-3 text-sm font-semibold text-[var(--text)] normal-case outline-none; }
+  .bulk-add-game select:focus { @apply border-[var(--accent)]; }
+  .bulk-add-summary { @apply mt-2 mb-0 text-sm text-[var(--muted)]; }
+  .bulk-add-summary strong { @apply text-[var(--text)]; }
+  .confirm-actions .bulk-add-confirm { @apply border-[var(--accent)] bg-[var(--accent)] text-white; }
 
   .game-cards { @apply grid grid-cols-2 gap-4.5; }
   .game-cards a { @apply p-6 text-[var(--text)] no-underline; }
