@@ -5,7 +5,7 @@ export type Region = 'alola' | 'galar' | 'hisui' | 'paldea';
 export type PokemonType = 'normal' | 'fire' | 'water' | 'electric' | 'grass' | 'ice' | 'fighting' | 'poison' | 'ground' | 'flying' | 'psychic' | 'bug' | 'rock' | 'ghost' | 'dragon' | 'dark' | 'steel' | 'fairy';
 
 export interface Species { id: SpeciesId; nationalDexNumber: number; name: string; defaultFormId: FormId; }
-export interface PokemonForm { id: FormId; speciesId: SpeciesId; name: string; sprite: string; shinySprite?: string; types: readonly PokemonType[]; region?: Region; formGroupIds?: string[]; }
+export interface PokemonForm { id: FormId; speciesId: SpeciesId; name: string; sprite: string; shinySprite?: string; types: readonly PokemonType[]; region?: Region; formGroupIds?: string[]; availableGameIds?: readonly GameId[]; }
 export interface GameDexSection { id: string; name: string; dexSpeciesIds: SpeciesId[]; formOverrides?: Partial<Record<SpeciesId,FormId>>; showDexNumbers?: boolean; }
 export interface Game { id: GameId; name: string; shortName: string; color: string; logo?: string; dexSpeciesIds: SpeciesId[]; dexSections?: GameDexSection[]; hasDex?: boolean; supportsAlpha?: boolean; }
 export interface FormGroup { id: string; name: string; description: string; formIds: FormId[]; }

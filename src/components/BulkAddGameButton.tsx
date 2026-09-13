@@ -24,7 +24,7 @@ export function BulkAddGameButton({children,forms,onAdd,buttonTitle,className,re
   const descriptionId=useId();
   const options=useMemo(()=>pokemonDataSource.getGames().map(game=>({
     game,
-    forms:game.id==='home'?forms:forms.filter(form=>game.dexSpeciesIds.includes(form.speciesId)),
+    forms:game.id==='home'?forms:forms.filter(form=>form.availableGameIds?form.availableGameIds.includes(game.id):game.dexSpeciesIds.includes(form.speciesId)),
   })).filter(option=>option.forms.length>0&&(!requiresAlpha||option.game.id==='home'||option.game.supportsAlpha===true)),[forms,requiresAlpha]);
   const selected=options.find(option=>option.game.id===gameId)??options[0];
   const close=()=>{setOpen(false);requestAnimationFrame(()=>triggerRef.current?.focus())};

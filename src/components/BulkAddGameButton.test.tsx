@@ -1,5 +1,6 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { pokemonDataSource } from '../data/PokemonDataSource';
 import type { PokemonForm } from '../domain/models';
 import { BulkAddGameButton } from './BulkAddGameButton';
 
@@ -32,5 +33,25 @@ describe('BulkAddGameButton',()=>{
     fireEvent.click(screen.getByRole('button',{name:'Add all'}));
     expect(screen.getByRole('option',{name:/Pokémon HOME/})).toBeInTheDocument();
     expect(screen.queryByRole('option',{name:/Scarlet \/ Violet/})).not.toBeInTheDocument();
+  });
+
+  it('respects the game availability of each Basculin stripe',()=>{
+    const formsById=pokemonDataSource.getFormsById();
+    const forms=['form-550-blue-striped','form-550-white-striped'].map(id=>formsById.get(id)!);
+    render(<BulkAddGameButton forms={forms} onAdd={vi.fn()}>Add all</BulkAddGameButton>);
+    fireEvent.click(screen.getByRole('button',{name:'Add all'}));
+    expect(screen.getByRole('option',{name:'Sword / Shield — 1/2'})).toBeInTheDocument();
+    expect(screen.getByRole('option',{name:'Pokémon Legends: Arceus — 1/2'})).toBeInTheDocument();
+    expect(screen.getByRole('option',{name:'Scarlet / Violet — 2/2'})).toBeInTheDocument();
+  });
+
+  it('offers Scarlet and Violet for the compatible Flabebe line forms',()=>{
+    const formsById=pokemonDataSource.getFormsById();
+    const group=pokemonDataSource.getFormGroups().find(candidate=>candidate.id==='flabebe-line')!;
+    const forms=group.formIds.map(id=>formsById.get(id)!);
+    render(<BulkAddGameButton forms={forms} onAdd={vi.fn()}>Add all</BulkAddGameButton>);
+    fireEvent.click(screen.getByRole('button',{name:'Add all'}));
+    expect(screen.getByRole('option',{name:'Scarlet / Violet — 12/13'})).toBeInTheDocument();
+    expect(screen.getByRole('option',{name:'Pokémon Legends: Z-A — 13/13'})).toBeInTheDocument();
   });
 });

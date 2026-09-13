@@ -1,4 +1,4 @@
-import type { FormGroup, Game, PokemonForm, PokemonType, Species } from '../domain/models';
+import type { FormGroup, Game, GameId, PokemonForm, PokemonType, Species } from '../domain/models';
 import { isStandardVariantAlias } from '../domain/variantForms';
 import { generatedSpecies } from './generatedSpecies';
 import { generatedGameDexes } from './generatedGameDexes';
@@ -14,8 +14,9 @@ const unownSprite = (slug: string, shiny = false) => {
 };
 const rawSpecies = generatedSpecies;
 const baseFormNames:Partial<Record<number,string>>={201:'A',412:'Plant Cloak',413:'Plant Cloak',550:'Red-Striped',585:'Spring',586:'Spring',669:'Red Flower',670:'Red Flower',671:'Red Flower',741:'Baile Style',745:'Midday Form',892:'Single Strike Style',931:'Green Plumage',978:'Curly Form',1012:'Counterfeit Form',1013:'Unremarkable Form'};
+const baseFormGameIds:Partial<Record<number,readonly GameId[]>>={550:['go','swsh','sv'],669:['go','sv','za'],670:['go','sv','za'],671:['go','sv','za']};
 export const species: Species[] = rawSpecies.map(([number,name]) => ({ id: `species-${number}`, nationalDexNumber: number, name, defaultFormId: `form-${number}-default` }));
-const baseForms: PokemonForm[] = rawSpecies.map(([number]) => ({ id: `form-${number}-default`, speciesId: `species-${number}`, name: baseFormNames[number]??'Standard', sprite: sprite(number), shinySprite: sprite(number, true), types:generatedPokemonTypes[number]??[] }));
+const baseForms: PokemonForm[] = rawSpecies.map(([number]) => ({ id: `form-${number}-default`, speciesId: `species-${number}`, name: baseFormNames[number]??'Standard', sprite: sprite(number), shinySprite: sprite(number, true), types:generatedPokemonTypes[number]??[], availableGameIds:baseFormGameIds[number] }));
 const alt = (speciesNumber:number, slug:string, name:string, pokeApiId:number, extra:Partial<PokemonForm>={}): PokemonForm => ({ id:`form-${speciesNumber}-${slug}`, speciesId:`species-${speciesNumber}`, name, sprite:sprite(pokeApiId), shinySprite:sprite(pokeApiId,true), types:generatedPokemonTypes[pokeApiId]??generatedPokemonTypes[speciesNumber]??[], ...extra });
 const regionalForms: PokemonForm[] = [
   ...([[19,10091],[20,10092],[26,10100],[27,10101],[28,10102],[37,10103],[38,10104],[50,10105],[51,10106],[52,10107],[53,10108],[74,10109],[75,10110],[76,10111],[88,10112],[89,10113],[103,10114],[105,10115]] as const).map(([number,id])=>alt(number,'alola','Alolan',id,{region:'alola'})),
@@ -25,13 +26,13 @@ const regionalForms: PokemonForm[] = [
 ];
 const unownNames = [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ','!','?'];
 const fileVariant=(number:number,slug:string,name:string,groupId:string,types:readonly PokemonType[])=>alt(number,slug,name,number,{sprite:formSprite(number,slug),shinySprite:formSprite(number,slug,true),formGroupIds:[groupId],types});
-const idVariant=(number:number,slug:string,name:string,pokeApiId:number,groupId:string,types:readonly PokemonType[])=>alt(number,slug,name,pokeApiId,{formGroupIds:[groupId],types});
+const idVariant=(number:number,slug:string,name:string,pokeApiId:number,groupId:string,types:readonly PokemonType[],availableGameIds?:readonly GameId[])=>alt(number,slug,name,pokeApiId,{formGroupIds:[groupId],types,availableGameIds});
 const specialForms: PokemonForm[] = [
   ...unownNames.map((name)=>{const slug=name.toLowerCase().replace('!','exclamation').replace('?','question');return alt(201,slug,name,201,{sprite:unownSprite(slug),shinySprite:unownSprite(slug,true),formGroupIds:['unown']})}),
   fileVariant(412,'sandy','Sandy Cloak','burmy-line',['bug']),fileVariant(412,'trash','Trash Cloak','burmy-line',['bug']),
   idVariant(413,'sandy','Sandy Cloak',10004,'burmy-line',['bug','ground']),idVariant(413,'trash','Trash Cloak',10005,'burmy-line',['bug','steel']),
   ...['Normal','Heat','Wash','Frost','Fan','Mow'].map((name,index)=>alt(479,name.toLowerCase(),name,index === 0 ? 479 : 10007 + index,{formGroupIds:['rotom']})),
-  idVariant(550,'blue-striped','Blue-Striped',10016,'basculin',['water']),idVariant(550,'white-striped','White-Striped',10247,'basculin',['water']),
+  idVariant(550,'blue-striped','Blue-Striped',10016,'basculin',['water'],['go','swsh','sv']),idVariant(550,'white-striped','White-Striped',10247,'basculin',['water'],['go','pla','sv']),
   ...[585,586].flatMap((number)=>['Summer','Autumn','Winter'].map((name)=>fileVariant(number,name.toLowerCase(),name,'deerling-line',['normal','grass']))),
   ...['Natural','Heart','Star','Diamond','Debutante','Matron','Dandy','La Reine','Kabuki','Pharaoh'].map((name)=>{const slug=name.toLowerCase().replaceAll(' ','-');return alt(676,slug,name,676,{sprite:slug==='natural'?sprite(676):formSprite(676,slug),shinySprite:slug==='natural'?sprite(676,true):formSprite(676,slug,true),formGroupIds:['furfrou']})}),
   idVariant(741,'pom-pom','Pom-Pom Style',10123,'oricorio',['electric','flying']),idVariant(741,'pau',"Pa'u Style",10124,'oricorio',['psychic','flying']),idVariant(741,'sensu','Sensu Style',10125,'oricorio',['ghost','flying']),
@@ -40,9 +41,9 @@ const specialForms: PokemonForm[] = [
   idVariant(931,'blue-plumage','Blue Plumage',10260,'squawkabilly',['normal','flying']),idVariant(931,'yellow-plumage','Yellow Plumage',10261,'squawkabilly',['normal','flying']),idVariant(931,'white-plumage','White Plumage',10262,'squawkabilly',['normal','flying']),
   idVariant(978,'droopy','Droopy Form',10258,'tatsugiri',['dragon','water']),idVariant(978,'stretchy','Stretchy Form',10259,'tatsugiri',['dragon','water']),
   fileVariant(1012,'artisan','Artisan Form','poltchageist-line',['grass','ghost']),fileVariant(1013,'masterpiece','Masterpiece Form','poltchageist-line',['grass','ghost']),
-  ...[669,670].flatMap((number)=>['Red','Yellow','Orange','Blue','White'].map((name)=>{const slug=name.toLowerCase();return alt(number,slug,name,number,{sprite:formSprite(number,slug),shinySprite:formSprite(number,slug,true),formGroupIds:['flabebe-line']})})),
-  alt(670,'eternal','Eternal',10061,{sprite:sprite(10061),shinySprite:sprite(10061,true),formGroupIds:['flabebe-line']}),
-  ...['Red','Yellow','Orange','Blue','White'].map((name)=>{const slug=name.toLowerCase();return alt(671,slug,name,671,{sprite:formSprite(671,slug),shinySprite:formSprite(671,slug,true),formGroupIds:['flabebe-line']})})
+  ...[669,670].flatMap((number)=>['Red','Yellow','Orange','Blue','White'].map((name)=>{const slug=name.toLowerCase();return alt(number,slug,name,number,{sprite:formSprite(number,slug),shinySprite:formSprite(number,slug,true),formGroupIds:['flabebe-line'],availableGameIds:['go','sv','za']})})),
+  alt(670,'eternal','Eternal',10061,{sprite:sprite(10061),shinySprite:sprite(10061,true),formGroupIds:['flabebe-line'],availableGameIds:['za']}),
+  ...['Red','Yellow','Orange','Blue','White'].map((name)=>{const slug=name.toLowerCase();return alt(671,slug,name,671,{sprite:formSprite(671,slug),shinySprite:formSprite(671,slug,true),formGroupIds:['flabebe-line'],availableGameIds:['go','sv','za']})})
 ].filter(form=>!isStandardVariantAlias(form.id));
 export const forms = [...baseForms, ...regionalForms, ...specialForms];
 export const formGroups: FormGroup[] = [

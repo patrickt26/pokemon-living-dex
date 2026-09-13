@@ -140,6 +140,14 @@ describe('generated game dex membership', () => {
     expect(forms.find(form=>form.id==='form-676-default')?.name).toBe('Standard');
   });
 
+  it('tracks game availability for form-specific Basculin and Flabebe variants',()=>{
+    expect(forms.find(form=>form.id==='form-550-default')?.availableGameIds).toEqual(['go','swsh','sv']);
+    expect(forms.find(form=>form.id==='form-550-blue-striped')?.availableGameIds).toEqual(['go','swsh','sv']);
+    expect(forms.find(form=>form.id==='form-550-white-striped')?.availableGameIds).toEqual(['go','pla','sv']);
+    expect(forms.find(form=>form.id==='form-669-blue')?.availableGameIds).toEqual(['go','sv','za']);
+    expect(forms.find(form=>form.id==='form-670-eternal')?.availableGameIds).toEqual(['za']);
+  });
+
   it('configures FRLG and Legends Z-A with their distinct Dex sections',()=>{
     const frlg=games.find(game=>game.id==='frlg')!;const pla=games.find(game=>game.id==='pla')!;const za=games.find(game=>game.id==='za')!;
     expect(frlg.dexSections?.map(section=>section.dexSpeciesIds.length)).toEqual([151,386]);
