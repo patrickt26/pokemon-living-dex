@@ -1,8 +1,9 @@
 import { Minus, Plus, X } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { pokemonDataSource } from '../data/PokemonDataSource';
 import { isAlphaEligibleSpecies } from '../domain/alpha';
 import { summarizeEntries } from '../domain/collection';
+import { getAvailableGamesForForm, isFormAvailableInGame } from '../domain/gameAvailability';
 import type { CollectionEntry, Game, PokemonForm } from '../domain/models';
 import { useCollectionActions } from '../hooks/useCollection';
 import { GameBadge } from './GameBadge';
@@ -17,7 +18,6 @@ export function PokemonDetails({ form, entries, game, onClose }: { form:PokemonF
   useEffect(()=>{panelRef.current?.focus();const close=(event:KeyboardEvent)=>{if(event.key==='Escape')onClose()};document.addEventListener('keydown',close);return()=>document.removeEventListener('keydown',close)},[onClose]);
   const species = pokemonDataSource.getSpeciesById().get(form.speciesId)!;
   const games = pokemonDataSource.getGames();
-  const availableGames = games.filter(candidate => candidate.id === 'home' || candidate.dexSpeciesIds.includes(species.id));
   const alphaEligible = isAlphaEligibleSpecies(games,species.id);
   const forms = pokemonDataSource.getFormsBySpeciesId().get(species.id)??[];
   const relevant = entries.filter(entry => entry.speciesId === species.id);
@@ -28,13 +28,17 @@ export function PokemonDetails({ form, entries, game, onClose }: { form:PokemonF
     return index < 0 ? [] : [`${section.name} #${String(index + 1).padStart(3, '0')}`];
   });
   const { add, changeOne, changeQuantity } = useCollectionActions();
-  const [gameId, setGameId] = useState(game?.id ?? availableGames[0]?.id ?? 'home');
+  const [gameId, setGameId] = useState(game?.id ?? 'home');
   const [ownOT, setOwnOT] = useState(true);
   const [shiny, setShiny] = useState(false);
   const [alpha, setAlpha] = useState(false);
   const [selectedForm, setSelectedForm] = useState(form.id);
   useEffect(() => setSelectedForm(form.id), [form.id]);
   const activeForm = pokemonDataSource.getFormsById().get(selectedForm) ?? form;
+  const availableGames = useMemo(()=>getAvailableGamesForForm(activeForm,games),[activeForm,games]);
+  useEffect(()=>{
+    if(!availableGames.some(candidate=>candidate.id===gameId))setGameId(availableGames[0]?.id??'home');
+  },[availableGames,gameId]);
   const showAlpha = alphaEligible && (!game || game.supportsAlpha === true);
   const addOne = () => add.mutate({ speciesId:species.id, formId:activeForm.id, gameId, ownOT, shiny, alpha:showAlpha&&alpha, quantity:1 });
 
@@ -47,7 +51,15 @@ export function PokemonDetails({ form, entries, game, onClose }: { form:PokemonF
     {relevant.length > 0 && <section><h3>{t('entries','Entries')}</h3><div className="entry-list">{relevant.map(entry => {
       const entryGame = games.find(candidate => candidate.id === entry.gameId)!;
       const origin = games.find(candidate => candidate.id === (entry.originGameId ?? entry.gameId));
-      return <div className="entry" key={entry.id}><div className="entry-meta"><div className="entry-game"><GameBadge game={entryGame}/>{origin && origin.id !== entryGame.id && <small>{t('origin','Origin')}: {origin.shortName}</small>}</div><div className="entry-toggles"><label className="entry-form">{t('form','Form')}<select value={entry.formId} onChange={event => changeOne.mutate({ id:entry.id, changes:{ formId:event.target.value } })} title={t('changeForm','Change the form of one copy')}>{forms.map(candidate => <option value={candidate.id} key={candidate.id}>{candidate.name}</option>)}</select></label><label className="entry-form entry-origin">{t('game','Game')}<select value={entry.originGameId ?? entry.gameId} onChange={event => changeOne.mutate({ id:entry.id, changes:{ gameId:event.target.value, originGameId:event.target.value } })} title={t('changeGame','Change the game of one copy')}>{availableGames.map(candidate => <option value={candidate.id} key={candidate.id}>{candidate.shortName}</option>)}</select></label><button className={entry.ownOT ? 'active' : ''} onClick={() => changeOne.mutate({ id:entry.id, changes:{ ownOT:!entry.ownOT } })} title={t('changeOt','Change the OT of one copy')}>{entry.ownOT ? t('ownOt','Own OT') : t('otherOtStat','Other OT')}</button><button className={entry.shiny ? 'active shiny' : ''} onClick={() => changeOne.mutate({ id:entry.id, changes:{ shiny:!entry.shiny } })} title={t('changeShiny','Change the shiny status of one copy')}>{entry.shiny ? t('shiny','✨ Shiny') : t('regular','Regular')}</button>{showAlpha&&<button className={entry.alpha ? 'active' : ''} onClick={() => changeOne.mutate({ id:entry.id, changes:{ alpha:!entry.alpha } })} title={t('changeAlpha','Change the Alpha status of one copy')}><AlphaIcon size={13} /> {entry.alpha?t('alpha','Alpha'):t('notAlpha','Not Alpha')}</button>}</div></div><div><button aria-label={`${t('removeOne','Remove one')} ${species.name}`} onClick={() => changeQuantity.mutate({ id:entry.id, quantity:entry.quantity - 1 })}><Minus size={14}/></button><strong aria-live="polite">{entry.quantity}</strong><button aria-label={`${t('addOne','Add one')} ${species.name}`} onClick={() => changeQuantity.mutate({ id:entry.id, quantity:entry.quantity + 1 })}><Plus size={14}/></button></div></div>;
+      const entryForm = pokemonDataSource.getFormsById().get(entry.formId)??form;
+      const entryAvailableGames = getAvailableGamesForForm(entryForm,games);
+      const changeEntryForm=(formId:string)=>{
+        const nextForm=pokemonDataSource.getFormsById().get(formId)??form;
+        const currentGame=games.find(candidate=>candidate.id===(entry.originGameId??entry.gameId));
+        const keepGame=currentGame&&isFormAvailableInGame(nextForm,currentGame);
+        changeOne.mutate({id:entry.id,changes:{formId,...(!keepGame?{gameId:'home',originGameId:'home'}:{})}});
+      };
+      return <div className="entry" key={entry.id}><div className="entry-meta"><div className="entry-game"><GameBadge game={entryGame}/>{origin && origin.id !== entryGame.id && <small>{t('origin','Origin')}: {origin.shortName}</small>}</div><div className="entry-toggles"><label className="entry-form">{t('form','Form')}<select value={entry.formId} onChange={event => changeEntryForm(event.target.value)} title={t('changeForm','Change the form of one copy')}>{forms.map(candidate => <option value={candidate.id} key={candidate.id}>{candidate.name}</option>)}</select></label><label className="entry-form entry-origin">{t('game','Game')}<select value={entry.originGameId ?? entry.gameId} onChange={event => changeOne.mutate({ id:entry.id, changes:{ gameId:event.target.value, originGameId:event.target.value } })} title={t('changeGame','Change the game of one copy')}>{entryAvailableGames.map(candidate => <option value={candidate.id} key={candidate.id}>{candidate.shortName}</option>)}</select></label><button className={entry.ownOT ? 'active' : ''} onClick={() => changeOne.mutate({ id:entry.id, changes:{ ownOT:!entry.ownOT } })} title={t('changeOt','Change the OT of one copy')}>{entry.ownOT ? t('ownOt','Own OT') : t('otherOtStat','Other OT')}</button><button className={entry.shiny ? 'active shiny' : ''} onClick={() => changeOne.mutate({ id:entry.id, changes:{ shiny:!entry.shiny } })} title={t('changeShiny','Change the shiny status of one copy')}>{entry.shiny ? t('shiny','✨ Shiny') : t('regular','Regular')}</button>{showAlpha&&<button className={entry.alpha ? 'active' : ''} onClick={() => changeOne.mutate({ id:entry.id, changes:{ alpha:!entry.alpha } })} title={t('changeAlpha','Change the Alpha status of one copy')}><AlphaIcon size={13} /> {entry.alpha?t('alpha','Alpha'):t('notAlpha','Not Alpha')}</button>}</div></div><div><button aria-label={`${t('removeOne','Remove one')} ${species.name}`} onClick={() => changeQuantity.mutate({ id:entry.id, quantity:entry.quantity - 1 })}><Minus size={14}/></button><strong aria-live="polite">{entry.quantity}</strong><button aria-label={`${t('addOne','Add one')} ${species.name}`} onClick={() => changeQuantity.mutate({ id:entry.id, quantity:entry.quantity + 1 })}><Plus size={14}/></button></div></div>;
     })}</div></section>}
   </aside></div>;
 }

@@ -14,33 +14,58 @@ const unownSprite = (slug: string, shiny = false) => {
 };
 const rawSpecies = generatedSpecies;
 const baseFormNames:Partial<Record<number,string>>={201:'A',412:'Plant Cloak',413:'Plant Cloak',550:'Red-Striped',585:'Spring',586:'Spring',669:'Red Flower',670:'Red Flower',671:'Red Flower',741:'Baile Style',745:'Midday Form',892:'Single Strike Style',931:'Green Plumage',978:'Curly Form',1012:'Counterfeit Form',1013:'Unremarkable Form'};
-const baseFormGameIds:Partial<Record<number,readonly GameId[]>>={550:['go','swsh','sv'],669:['go','sv','za'],670:['go','sv','za'],671:['go','sv','za']};
+const baseFormGameIds:Partial<Record<number,readonly GameId[]>>={
+  201:['go','bdsp','pla'],
+  412:['go','bdsp','pla'],413:['go','bdsp','pla'],
+  479:['go','bdsp','swsh','pla','sv','za'],
+  550:['go','swsh','sv'],
+  585:['go','sv'],586:['go','sv'],
+  669:['go','sv','za'],670:['go','sv','za'],671:['go','sv','za'],
+  676:['go','za'],
+  741:['go','sv'],745:['go','swsh','sv'],892:['go','swsh','sv'],
+  931:['go','sv','za'],978:['go','sv','za'],
+  1012:['go','sv'],1013:['go','sv'],
+};
 export const species: Species[] = rawSpecies.map(([number,name]) => ({ id: `species-${number}`, nationalDexNumber: number, name, defaultFormId: `form-${number}-default` }));
 const baseForms: PokemonForm[] = rawSpecies.map(([number]) => ({ id: `form-${number}-default`, speciesId: `species-${number}`, name: baseFormNames[number]??'Standard', sprite: sprite(number), shinySprite: sprite(number, true), types:generatedPokemonTypes[number]??[], availableGameIds:baseFormGameIds[number] }));
 const alt = (speciesNumber:number, slug:string, name:string, pokeApiId:number, extra:Partial<PokemonForm>={}): PokemonForm => ({ id:`form-${speciesNumber}-${slug}`, speciesId:`species-${speciesNumber}`, name, sprite:sprite(pokeApiId), shinySprite:sprite(pokeApiId,true), types:generatedPokemonTypes[pokeApiId]??generatedPokemonTypes[speciesNumber]??[], ...extra });
+const alolaSwsh=[26,27,28,37,38,50,51,52,53,103,105];
+const alolaPla=[37,38];
+const alolaSv=[26,27,28,37,38,50,51,52,53,74,75,76,88,89,103];
+const alolaZa=[26,52,53,105];
+const galarSv=[52,79,80,110,144,145,146,199];
+const galarZa=[52,79,80,83,122,199,562,618];
+const hisuiZa=[211,705,706,713];
+const regionalAvailability=(region:'alola'|'galar'|'hisui'|'paldea',number:number):readonly GameId[]=>{
+  if(region==='alola')return ['go',...(alolaSwsh.includes(number)?['swsh']:[]),...(alolaPla.includes(number)?['pla']:[]),...(alolaSv.includes(number)?['sv']:[]),...(alolaZa.includes(number)?['za']:[])];
+  if(region==='galar')return ['go','swsh',...(galarSv.includes(number)?['sv']:[]),...(galarZa.includes(number)?['za']:[])];
+  if(region==='hisui')return [...(![705,706].includes(number)?['go']:[]),'pla','sv',...(hisuiZa.includes(number)?['za']:[])];
+  return ['go','sv'];
+};
+const regional=(number:number,slug:string,name:string,pokeApiId:number,region:'alola'|'galar'|'hisui'|'paldea')=>alt(number,slug,name,pokeApiId,{region,availableGameIds:regionalAvailability(region,number)});
 const regionalForms: PokemonForm[] = [
-  ...([[19,10091],[20,10092],[26,10100],[27,10101],[28,10102],[37,10103],[38,10104],[50,10105],[51,10106],[52,10107],[53,10108],[74,10109],[75,10110],[76,10111],[88,10112],[89,10113],[103,10114],[105,10115]] as const).map(([number,id])=>alt(number,'alola','Alolan',id,{region:'alola'})),
-  ...([[52,10161],[77,10162],[78,10163],[79,10164],[80,10165],[83,10166],[110,10167],[122,10168],[144,10169],[145,10170],[146,10171],[199,10172],[222,10173],[263,10174],[264,10175],[554,10176],[555,10177],[562,10179],[618,10180]] as const).map(([number,id])=>alt(number,'galar','Galarian',id,{region:'galar'})),
-  ...([[58,10229],[59,10230],[100,10231],[101,10232],[157,10233],[211,10234],[215,10235],[503,10236],[549,10237],[570,10238],[571,10239],[628,10240],[705,10241],[706,10242],[713,10243],[724,10244]] as const).map(([number,id])=>alt(number,'hisui','Hisuian',id,{region:'hisui'})),
-  alt(128,'paldea-combat','Paldean Combat Breed',10250,{region:'paldea'}),alt(128,'paldea-blaze','Paldean Blaze Breed',10251,{region:'paldea'}),alt(128,'paldea-aqua','Paldean Aqua Breed',10252,{region:'paldea'}),alt(194,'paldea','Paldean',10253,{region:'paldea'})
+  ...([[19,10091],[20,10092],[26,10100],[27,10101],[28,10102],[37,10103],[38,10104],[50,10105],[51,10106],[52,10107],[53,10108],[74,10109],[75,10110],[76,10111],[88,10112],[89,10113],[103,10114],[105,10115]] as const).map(([number,id])=>regional(number,'alola','Alolan',id,'alola')),
+  ...([[52,10161],[77,10162],[78,10163],[79,10164],[80,10165],[83,10166],[110,10167],[122,10168],[144,10169],[145,10170],[146,10171],[199,10172],[222,10173],[263,10174],[264,10175],[554,10176],[555,10177],[562,10179],[618,10180]] as const).map(([number,id])=>regional(number,'galar','Galarian',id,'galar')),
+  ...([[58,10229],[59,10230],[100,10231],[101,10232],[157,10233],[211,10234],[215,10235],[503,10236],[549,10237],[570,10238],[571,10239],[628,10240],[705,10241],[706,10242],[713,10243],[724,10244]] as const).map(([number,id])=>regional(number,'hisui','Hisuian',id,'hisui')),
+  regional(128,'paldea-combat','Paldean Combat Breed',10250,'paldea'),regional(128,'paldea-blaze','Paldean Blaze Breed',10251,'paldea'),regional(128,'paldea-aqua','Paldean Aqua Breed',10252,'paldea'),regional(194,'paldea','Paldean',10253,'paldea')
 ];
 const unownNames = [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ','!','?'];
-const fileVariant=(number:number,slug:string,name:string,groupId:string,types:readonly PokemonType[])=>alt(number,slug,name,number,{sprite:formSprite(number,slug),shinySprite:formSprite(number,slug,true),formGroupIds:[groupId],types});
+const fileVariant=(number:number,slug:string,name:string,groupId:string,types:readonly PokemonType[],availableGameIds:readonly GameId[])=>alt(number,slug,name,number,{sprite:formSprite(number,slug),shinySprite:formSprite(number,slug,true),formGroupIds:[groupId],types,availableGameIds});
 const idVariant=(number:number,slug:string,name:string,pokeApiId:number,groupId:string,types:readonly PokemonType[],availableGameIds?:readonly GameId[])=>alt(number,slug,name,pokeApiId,{formGroupIds:[groupId],types,availableGameIds});
 const specialForms: PokemonForm[] = [
-  ...unownNames.map((name)=>{const slug=name.toLowerCase().replace('!','exclamation').replace('?','question');return alt(201,slug,name,201,{sprite:unownSprite(slug),shinySprite:unownSprite(slug,true),formGroupIds:['unown']})}),
-  fileVariant(412,'sandy','Sandy Cloak','burmy-line',['bug']),fileVariant(412,'trash','Trash Cloak','burmy-line',['bug']),
-  idVariant(413,'sandy','Sandy Cloak',10004,'burmy-line',['bug','ground']),idVariant(413,'trash','Trash Cloak',10005,'burmy-line',['bug','steel']),
-  ...['Normal','Heat','Wash','Frost','Fan','Mow'].map((name,index)=>alt(479,name.toLowerCase(),name,index === 0 ? 479 : 10007 + index,{formGroupIds:['rotom']})),
+  ...unownNames.map((name)=>{const slug=name.toLowerCase().replace('!','exclamation').replace('?','question');return alt(201,slug,name,201,{sprite:unownSprite(slug),shinySprite:unownSprite(slug,true),formGroupIds:['unown'],availableGameIds:['go','bdsp','pla']})}),
+  fileVariant(412,'sandy','Sandy Cloak','burmy-line',['bug'],['go','bdsp','pla']),fileVariant(412,'trash','Trash Cloak','burmy-line',['bug'],['go','bdsp','pla']),
+  idVariant(413,'sandy','Sandy Cloak',10004,'burmy-line',['bug','ground'],['go','bdsp','pla']),idVariant(413,'trash','Trash Cloak',10005,'burmy-line',['bug','steel'],['go','bdsp','pla']),
+  ...['Normal','Heat','Wash','Frost','Fan','Mow'].map((name,index)=>alt(479,name.toLowerCase(),name,index === 0 ? 479 : 10007 + index,{formGroupIds:['rotom'],availableGameIds:['go','bdsp','swsh','pla','sv','za']})),
   idVariant(550,'blue-striped','Blue-Striped',10016,'basculin',['water'],['go','swsh','sv']),idVariant(550,'white-striped','White-Striped',10247,'basculin',['water'],['go','pla','sv']),
-  ...[585,586].flatMap((number)=>['Summer','Autumn','Winter'].map((name)=>fileVariant(number,name.toLowerCase(),name,'deerling-line',['normal','grass']))),
-  ...['Natural','Heart','Star','Diamond','Debutante','Matron','Dandy','La Reine','Kabuki','Pharaoh'].map((name)=>{const slug=name.toLowerCase().replaceAll(' ','-');return alt(676,slug,name,676,{sprite:slug==='natural'?sprite(676):formSprite(676,slug),shinySprite:slug==='natural'?sprite(676,true):formSprite(676,slug,true),formGroupIds:['furfrou']})}),
-  idVariant(741,'pom-pom','Pom-Pom Style',10123,'oricorio',['electric','flying']),idVariant(741,'pau',"Pa'u Style",10124,'oricorio',['psychic','flying']),idVariant(741,'sensu','Sensu Style',10125,'oricorio',['ghost','flying']),
-  idVariant(745,'midnight','Midnight Form',10126,'lycanroc',['rock']),idVariant(745,'dusk','Dusk Form',10152,'lycanroc',['rock']),
-  idVariant(892,'rapid-strike','Rapid Strike Style',10191,'urshifu',['fighting','water']),
-  idVariant(931,'blue-plumage','Blue Plumage',10260,'squawkabilly',['normal','flying']),idVariant(931,'yellow-plumage','Yellow Plumage',10261,'squawkabilly',['normal','flying']),idVariant(931,'white-plumage','White Plumage',10262,'squawkabilly',['normal','flying']),
-  idVariant(978,'droopy','Droopy Form',10258,'tatsugiri',['dragon','water']),idVariant(978,'stretchy','Stretchy Form',10259,'tatsugiri',['dragon','water']),
-  fileVariant(1012,'artisan','Artisan Form','poltchageist-line',['grass','ghost']),fileVariant(1013,'masterpiece','Masterpiece Form','poltchageist-line',['grass','ghost']),
+  ...[585,586].flatMap((number)=>['Summer','Autumn','Winter'].map((name)=>fileVariant(number,name.toLowerCase(),name,'deerling-line',['normal','grass'],['go','sv']))),
+  ...['Natural','Heart','Star','Diamond','Debutante','Matron','Dandy','La Reine','Kabuki','Pharaoh'].map((name)=>{const slug=name.toLowerCase().replaceAll(' ','-');return alt(676,slug,name,676,{sprite:slug==='natural'?sprite(676):formSprite(676,slug),shinySprite:slug==='natural'?sprite(676,true):formSprite(676,slug,true),formGroupIds:['furfrou'],availableGameIds:['go','za']})}),
+  idVariant(741,'pom-pom','Pom-Pom Style',10123,'oricorio',['electric','flying'],['go','sv']),idVariant(741,'pau',"Pa'u Style",10124,'oricorio',['psychic','flying'],['go','sv']),idVariant(741,'sensu','Sensu Style',10125,'oricorio',['ghost','flying'],['go','sv']),
+  idVariant(745,'midnight','Midnight Form',10126,'lycanroc',['rock'],['go','swsh','sv']),idVariant(745,'dusk','Dusk Form',10152,'lycanroc',['rock'],['go','swsh','sv']),
+  idVariant(892,'rapid-strike','Rapid Strike Style',10191,'urshifu',['fighting','water'],['go','swsh','sv']),
+  idVariant(931,'blue-plumage','Blue Plumage',10260,'squawkabilly',['normal','flying'],['go','sv','za']),idVariant(931,'yellow-plumage','Yellow Plumage',10261,'squawkabilly',['normal','flying'],['go','sv','za']),idVariant(931,'white-plumage','White Plumage',10262,'squawkabilly',['normal','flying'],['go','sv','za']),
+  idVariant(978,'droopy','Droopy Form',10258,'tatsugiri',['dragon','water'],['go','sv','za']),idVariant(978,'stretchy','Stretchy Form',10259,'tatsugiri',['dragon','water'],['go','sv','za']),
+  fileVariant(1012,'artisan','Artisan Form','poltchageist-line',['grass','ghost'],['go','sv']),fileVariant(1013,'masterpiece','Masterpiece Form','poltchageist-line',['grass','ghost'],['go','sv']),
   ...[669,670].flatMap((number)=>['Red','Yellow','Orange','Blue','White'].map((name)=>{const slug=name.toLowerCase();return alt(number,slug,name,number,{sprite:formSprite(number,slug),shinySprite:formSprite(number,slug,true),formGroupIds:['flabebe-line'],availableGameIds:['go','sv','za']})})),
   alt(670,'eternal','Eternal',10061,{sprite:sprite(10061),shinySprite:sprite(10061,true),formGroupIds:['flabebe-line'],availableGameIds:['za']}),
   ...['Red','Yellow','Orange','Blue','White'].map((name)=>{const slug=name.toLowerCase();return alt(671,slug,name,671,{sprite:formSprite(671,slug),shinySprite:formSprite(671,slug,true),formGroupIds:['flabebe-line'],availableGameIds:['go','sv','za']})})

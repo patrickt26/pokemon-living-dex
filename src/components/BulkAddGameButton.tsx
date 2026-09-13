@@ -2,6 +2,7 @@ import { Gamepad2, X } from 'lucide-react';
 import { type ReactNode, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { pokemonDataSource } from '../data/PokemonDataSource';
+import { isFormAvailableInGame } from '../domain/gameAvailability';
 import type { PokemonForm } from '../domain/models';
 import { useI18n } from '../i18n';
 
@@ -24,7 +25,7 @@ export function BulkAddGameButton({children,forms,onAdd,buttonTitle,className,re
   const descriptionId=useId();
   const options=useMemo(()=>pokemonDataSource.getGames().map(game=>({
     game,
-    forms:game.id==='home'?forms:forms.filter(form=>form.availableGameIds?form.availableGameIds.includes(game.id):game.dexSpeciesIds.includes(form.speciesId)),
+    forms:forms.filter(form=>isFormAvailableInGame(form,game)),
   })).filter(option=>option.forms.length>0&&(!requiresAlpha||option.game.id==='home'||option.game.supportsAlpha===true)),[forms,requiresAlpha]);
   const selected=options.find(option=>option.game.id===gameId)??options[0];
   const close=()=>{setOpen(false);requestAnimationFrame(()=>triggerRef.current?.focus())};

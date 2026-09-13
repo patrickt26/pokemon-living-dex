@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { calculateGameProgress } from '../domain/collection';
+import { isFormAvailableInGame } from '../domain/gameAvailability';
 import type { CollectionEntry } from '../domain/models';
 import { generatedGameDexes } from './generatedGameDexes';
 import { dynamaxAdventureNumbers, formGroups, forms, games, noDexEntryNumbers } from './catalog';
@@ -146,6 +147,31 @@ describe('generated game dex membership', () => {
     expect(forms.find(form=>form.id==='form-550-white-striped')?.availableGameIds).toEqual(['go','pla','sv']);
     expect(forms.find(form=>form.id==='form-669-blue')?.availableGameIds).toEqual(['go','sv','za']);
     expect(forms.find(form=>form.id==='form-670-eternal')?.availableGameIds).toEqual(['za']);
+  });
+
+  it('tracks complete regional-form compatibility instead of species Dex membership',()=>{
+    const regional=forms.filter(form=>form.region);
+    const compatibleCount=(gameId:string)=>{
+      const game=games.find(candidate=>candidate.id===gameId)!;
+      return regional.filter(form=>isFormAvailableInGame(form,game)).length;
+    };
+    expect(regional).toHaveLength(57);
+    expect(Object.fromEntries(games.map(game=>[game.id,compatibleCount(game.id)]))).toEqual({home:57,go:55,frlg:0,bdsp:0,swsh:30,pla:18,sv:43,za:16});
+    expect(forms.find(form=>form.id==='form-26-alola')?.availableGameIds).toEqual(['go','swsh','sv','za']);
+    expect(forms.find(form=>form.id==='form-37-alola')?.availableGameIds).toEqual(['go','swsh','pla','sv']);
+    expect(forms.find(form=>form.id==='form-83-galar')?.availableGameIds).toEqual(['go','swsh','za']);
+    expect(forms.find(form=>form.id==='form-110-galar')?.availableGameIds).toEqual(['go','swsh','sv']);
+    expect(forms.find(form=>form.id==='form-705-hisui')?.availableGameIds).toEqual(['pla','sv','za']);
+  });
+
+  it('defines explicit compatibility for every catalogued variant form',()=>{
+    const variantSpecies=new Set([201,412,413,479,550,585,586,669,670,671,676,741,745,892,931,978,1012,1013].map(number=>`species-${number}`));
+    const variants=forms.filter(form=>variantSpecies.has(form.speciesId));
+    expect(variants.every(form=>form.availableGameIds!==undefined)).toBe(true);
+    expect(forms.find(form=>form.id==='form-479-heat')?.availableGameIds).toEqual(['go','bdsp','swsh','pla','sv','za']);
+    expect(forms.find(form=>form.id==='form-892-default')?.availableGameIds).toEqual(['go','swsh','sv']);
+    expect(forms.find(form=>form.id==='form-931-white-plumage')?.availableGameIds).toEqual(['go','sv','za']);
+    expect(forms.find(form=>form.id==='form-1012-artisan')?.availableGameIds).toEqual(['go','sv']);
   });
 
   it('configures FRLG and Legends Z-A with their distinct Dex sections',()=>{
