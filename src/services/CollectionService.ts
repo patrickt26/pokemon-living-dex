@@ -16,6 +16,14 @@ export class CollectionService {
     if(source.quantity===1){if(target)await this.repository.applyBatch({additions:[],updates:[{...target,quantity:target.quantity+1}],removals:[source.id]});else await this.repository.updateEntry(source.id,normalizedChanges);return}
     const sourceUpdate:CollectionEntry={...source,quantity:source.quantity-1};if(target)await this.repository.applyBatch({additions:[],updates:[sourceUpdate,{...target,quantity:target.quantity+1}],removals:[]});else await this.repository.applyBatch({additions:[{speciesId:changed.speciesId,formId:changed.formId,gameId:changed.gameId,originGameId:changed.originGameId,shiny:changed.shiny,alpha:changed.alpha,ownOT:changed.ownOT,quantity:1}],updates:[sourceUpdate],removals:[]});
   }
+  async changeAll(id:string,changes:Partial<CollectionEntryInput>){
+    const entries=await this.repository.getEntries();const source=entries.find(entry=>entry.id===id);if(!source)throw new Error('Collection entry not found');
+    const normalizedChanges={...changes,...(changes.formId?{formId:normalizeVariantFormId(changes.formId)}:{})};const changed:CollectionEntry={...source,...normalizedChanges,alpha:changes.alpha??source.alpha??false};
+    if(entryKey(changed)===entryKey(source))return;
+    const target=entries.find(entry=>entry.id!==source.id&&entryKey(entry)===entryKey(changed));
+    if(target){await this.repository.applyBatch({additions:[],updates:[{...target,quantity:target.quantity+source.quantity}],removals:[source.id]});return}
+    await this.repository.updateEntry(source.id,normalizedChanges);
+  }
   async addOrIncrementMany(inputs:CollectionEntryInput[]){
     if(inputs.some(input=>input.quantity<1))throw new Error('Quantity must be at least 1');
     const entries=await this.repository.getEntries();const existingByKey=new Map(entries.map(entry=>[entryKey(entry),entry]));const updates=new Map<string,CollectionEntry>();const additions=new Map<string,CollectionEntryInput>();

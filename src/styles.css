@@ -273,6 +273,27 @@
   .backup-preview h2 { @apply mt-1 mb-0; }
   .backup-preview-actions { @apply flex flex-wrap justify-end gap-2; }
   .backup-preview-actions .primary { @apply w-auto; }
+  .integrity-panel { @apply p-6; }
+  .integrity-ok { @apply flex items-center gap-4 border-[#3aaf8266] text-[#55c99b]; }
+  .integrity-ok > svg { @apply size-9 shrink-0; }
+  .integrity-ok h2, .integrity-head h2 { @apply mt-1 mb-1 text-xl text-[var(--text)]; }
+  .integrity-ok p, .integrity-head p { @apply m-0 text-sm leading-6 text-[var(--muted)]; }
+  .integrity-head { @apply flex items-start gap-4; }
+  .integrity-head > div:nth-child(2) { @apply min-w-0 flex-1; }
+  .integrity-head > strong { @apply grid size-9 shrink-0 place-items-center rounded-full bg-[#d39b2018] text-sm text-[#d9a72e]; }
+  .integrity-warning { @apply grid size-11 shrink-0 place-items-center rounded-xl bg-[#d39b2018] text-[#d9a72e]; }
+  .integrity-list { @apply mt-5 grid gap-2; }
+  .integrity-entry { @apply grid grid-cols-[auto_1fr_minmax(180px,260px)_auto] items-center gap-3 rounded-xl border border-[var(--line)] bg-[var(--surface-2)] p-3; }
+  .integrity-entry > .pokemon-sprite { @apply size-15; }
+  .integrity-entry-copy { @apply flex min-w-0 flex-col; }
+  .integrity-entry-copy strong { @apply truncate; }
+  .integrity-entry-copy span, .integrity-entry-copy small { @apply text-xs text-[var(--muted)]; }
+  .integrity-entry-copy small { @apply mt-1 font-semibold text-[#d9a72e]; }
+  .integrity-entry label { @apply grid gap-1 text-[10px] font-bold tracking-[.6px] text-[var(--muted)] uppercase; }
+  .integrity-entry select { @apply min-w-0 cursor-pointer rounded-lg border border-[var(--line)] bg-[var(--surface)] p-2 text-xs font-semibold text-[var(--text)] normal-case; }
+  .integrity-entry .secondary-action { @apply whitespace-nowrap px-3 py-2 text-xs; }
+  .integrity-entry .secondary-action:disabled { @apply cursor-not-allowed opacity-50; }
+  .integrity-footnote { @apply mt-3 mb-0 text-xs text-[var(--muted)]; }
   .cloud-card { @apply p-6; }
   .cloud-card > .notice:last-child { @apply mb-0; }
   .cloud-card-head { @apply flex items-start gap-4; }
@@ -370,6 +391,9 @@
   .not-found-copy p { @apply mx-auto; }
   .not-found-actions { @apply justify-center; }
   .backup-preview { @apply flex-col items-start; }
+  .integrity-entry { @apply grid-cols-[auto_1fr]; }
+  .integrity-entry label, .integrity-entry .secondary-action { @apply col-span-2; }
+  .integrity-entry .secondary-action { @apply w-full; }
   .cloud-card-head { @apply flex-wrap; }
   .cloud-signout { @apply ml-15; }
   .cloud-user { @apply flex-wrap; }

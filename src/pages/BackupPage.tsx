@@ -4,6 +4,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { collectionBackupService } from '../app/dependencies';
 import { ConfirmButton } from '../components/ConfirmButton';
 import { CloudAccountCard } from '../components/CloudAccountCard';
+import { CollectionIntegrityPanel } from '../components/CollectionIntegrityPanel';
+import { useCollection } from '../hooks/useCollection';
 import type { BackupPreview, ImportMode } from '../services/CollectionBackupService';
 import { useI18n } from '../i18n';
 
@@ -15,6 +17,7 @@ export function BackupPage() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
+  const {data:entries=[],isLoading:collectionLoading}=useCollection();
 
   const download = (content: string, name: string, type: string) => {
     const blob = new Blob([content], { type });
@@ -70,6 +73,7 @@ export function BackupPage() {
       <section className="panel backup-card"><div className="backup-icon"><Download /></div><h2>{t('exportTitle', 'Export collection')}</h2><p>{t('exportDescription', 'Download a versioned JSON backup containing only your collection entries.')}</p><div className="button-row"><button className="primary" onClick={exportBackup} disabled={busy}><Download size={18} /> {t('exportBackup', 'Export backup')}</button><button className="secondary-action" onClick={exportCsv} disabled={busy}><FileSpreadsheet size={18} /> {t('exportCsv', 'Export CSV')}</button></div></section>
       <section className="panel backup-card"><div className="backup-icon"><Upload /></div><h2>{t('importTitle', 'Import backup')}</h2><p>{t('importDescription', 'Select a Living Dex JSON file. Nothing changes until you review and confirm it.')}</p><input ref={inputRef} className="sr-only" type="file" accept="application/json,.json" onChange={event => readFile(event.target.files?.[0])} /><button className="secondary-action" onClick={() => inputRef.current?.click()} disabled={busy}><FileJson size={18} /> {t('selectJson', 'Select JSON file')}</button></section>
     </div>
+    <CollectionIntegrityPanel entries={entries} loading={collectionLoading}/>
     <CloudAccountCard />
     {error && <div className="notice error" role="alert">{error}</div>}
     {message && <div className="notice success" role="status"><ShieldCheck size={18} />{message}</div>}
