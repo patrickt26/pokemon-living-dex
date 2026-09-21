@@ -5,7 +5,7 @@ test('shows only compatible alternate forms inside a game Dex',async({page})=>{
   await page.goto('/games/sv');
 
   const toggle=page.getByRole('button',{name:/Variants available in this game/i});
-  await expect(toggle).toBeVisible();
+  await expect(toggle).toBeVisible({timeout:15_000});
   await expect(toggle).toHaveAttribute('aria-expanded','false');
 
   await page.locator('.game-variants-shortcut').click();

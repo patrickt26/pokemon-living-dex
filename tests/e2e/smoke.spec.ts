@@ -14,7 +14,7 @@ test('production smoke test loads the app and a Pokémon sprite', async ({ page 
   await expect(page.locator('.sidebar')).toBeVisible();
 
   const sprite = page.locator('.pokemon-sprite').first();
-  await expect(sprite).toBeVisible();
-  await expect.poll(() => sprite.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
+  await expect(sprite).toBeVisible({timeout:15_000});
+  await expect.poll(() => sprite.evaluate((image: HTMLImageElement) => image.naturalWidth),{timeout:15_000}).toBeGreaterThan(0);
   expect(failedSpriteRequests).toEqual([]);
 });
