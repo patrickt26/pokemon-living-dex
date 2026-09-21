@@ -118,7 +118,7 @@ describe('generated game dex membership', () => {
   });
 
   it('includes the expanded cosmetic and permanent variant groups',()=>{
-    const expectedCounts:Record<string,number>={'burmy-line':4,basculin:2,'deerling-line':6,oricorio:3,lycanroc:2,urshifu:1,squawkabilly:3,tatsugiri:2,'poltchageist-line':2};
+    const expectedCounts:Record<string,number>={deoxys:3,'burmy-line':4,'shellos-line':2,shaymin:1,basculin:2,'deerling-line':6,'forces-of-nature':4,keldeo:1,vivillon:19,meowstic:1,'pumpkaboo-line':6,oricorio:3,lycanroc:2,zygarde:1,hoopa:1,minior:6,magearna:1,toxtricity:1,'sinistea-line':2,alcremie:8,indeedee:1,urshifu:1,zarude:1,ursaluna:1,basculegion:1,oinkologne:1,maushold:1,squawkabilly:3,tatsugiri:2,dudunsparce:1,gimmighoul:1,'poltchageist-line':2};
     const variantIds=Object.entries(expectedCounts).flatMap(([groupId,count])=>{
       const group=formGroups.find(candidate=>candidate.id===groupId);
       expect(group?.formIds).toHaveLength(count);
@@ -127,7 +127,7 @@ describe('generated game dex membership', () => {
     const variants=variantIds.map(id=>forms.find(form=>form.id===id)!);
     expect(new Set(variants.map(form=>form.sprite)).size).toBe(variants.length);
     expect(new Set(variants.map(form=>form.shinySprite)).size).toBe(variants.length);
-    expect(new Set(variants.map(form=>form.speciesId))).toEqual(new Set(['species-412','species-413','species-550','species-585','species-586','species-741','species-745','species-892','species-931','species-978','species-1012','species-1013']));
+    expect(new Set(variants.map(form=>form.speciesId))).toEqual(new Set(['species-386','species-412','species-413','species-422','species-423','species-492','species-550','species-585','species-586','species-641','species-642','species-645','species-647','species-666','species-678','species-710','species-711','species-718','species-720','species-741','species-745','species-774','species-801','species-849','species-854','species-855','species-869','species-876','species-892','species-893','species-901','species-902','species-905','species-916','species-925','species-931','species-978','species-982','species-999','species-1012','species-1013']));
     expect(forms.find(form=>form.id==='form-413-sandy')?.types).toEqual(['bug','ground']);
     expect(forms.find(form=>form.id==='form-413-trash')?.types).toEqual(['bug','steel']);
     expect(forms.find(form=>form.id==='form-741-sensu')?.types).toEqual(['ghost','flying']);
@@ -135,10 +135,11 @@ describe('generated game dex membership', () => {
   });
 
   it('uses meaningful names for default members of variant families',()=>{
-    const expectedNames:Record<string,string>={'form-201-default':'A','form-412-default':'Plant Cloak','form-413-default':'Plant Cloak','form-550-default':'Red-Striped','form-585-default':'Spring','form-586-default':'Spring','form-669-default':'Red Flower','form-670-default':'Red Flower','form-671-default':'Red Flower','form-741-default':'Baile Style','form-745-default':'Midday Form','form-892-default':'Single Strike Style','form-931-default':'Green Plumage','form-978-default':'Curly Form','form-1012-default':'Counterfeit Form','form-1013-default':'Unremarkable Form'};
+    const expectedNames:Record<string,string>={'form-201-default':'A','form-386-default':'Normal Forme','form-412-default':'Plant Cloak','form-413-default':'Plant Cloak','form-422-default':'West Sea','form-423-default':'West Sea','form-492-default':'Land Forme','form-550-default':'Red-Striped','form-585-default':'Spring','form-586-default':'Spring','form-641-default':'Incarnate Forme','form-642-default':'Incarnate Forme','form-645-default':'Incarnate Forme','form-647-default':'Ordinary Form','form-666-default':'Meadow Pattern','form-669-default':'Red Flower','form-670-default':'Red Flower','form-671-default':'Red Flower','form-678-default':'Male','form-710-default':'Average Size','form-711-default':'Average Size','form-718-default':'50% Forme','form-720-default':'Confined','form-741-default':'Baile Style','form-745-default':'Midday Form','form-774-default':'Red Core','form-801-default':'Regular Color','form-849-default':'Amped Form','form-854-default':'Phony Form','form-855-default':'Phony Form','form-869-default':'Vanilla Cream','form-876-default':'Male','form-892-default':'Single Strike Style','form-893-default':'Regular','form-901-default':'Regular Form','form-902-default':'Male','form-905-default':'Incarnate Forme','form-916-default':'Male','form-925-default':'Family of Four','form-931-default':'Green Plumage','form-978-default':'Curly Form','form-982-default':'Two-Segment Form','form-999-default':'Chest Form','form-1012-default':'Counterfeit Form','form-1013-default':'Unremarkable Form'};
     for(const [formId,name] of Object.entries(expectedNames))expect(forms.find(form=>form.id===formId)?.name).toBe(name);
     expect(forms.find(form=>form.id==='form-479-default')?.name).toBe('Standard');
     expect(forms.find(form=>form.id==='form-676-default')?.name).toBe('Standard');
+    expect(forms.find(form=>form.id==='form-774-default')?.sprite).toContain('/10136.png');
   });
 
   it('tracks game availability for form-specific Basculin and Flabebe variants',()=>{
@@ -165,13 +166,30 @@ describe('generated game dex membership', () => {
   });
 
   it('defines explicit compatibility for every catalogued variant form',()=>{
-    const variantSpecies=new Set([201,412,413,479,550,585,586,669,670,671,676,741,745,892,931,978,1012,1013].map(number=>`species-${number}`));
+    const variantSpecies=new Set([201,386,412,413,422,423,479,492,550,585,586,641,642,645,647,666,669,670,671,676,678,710,711,718,720,741,745,774,801,849,854,855,869,876,892,893,901,902,905,916,925,931,978,982,999,1012,1013].map(number=>`species-${number}`));
     const variants=forms.filter(form=>variantSpecies.has(form.speciesId));
     expect(variants.every(form=>form.availableGameIds!==undefined)).toBe(true);
     expect(forms.find(form=>form.id==='form-479-heat')?.availableGameIds).toEqual(['go','bdsp','swsh','pla','sv','za']);
     expect(forms.find(form=>form.id==='form-892-default')?.availableGameIds).toEqual(['go','swsh','sv']);
     expect(forms.find(form=>form.id==='form-931-white-plumage')?.availableGameIds).toEqual(['go','sv','za']);
     expect(forms.find(form=>form.id==='form-1012-artisan')?.availableGameIds).toEqual(['go','sv']);
+  });
+
+  it('tracks compatibility exceptions in the newly added variant families',()=>{
+    expect(forms.find(form=>form.id==='form-666-archipelago')?.availableGameIds).toEqual(['go','sv','za']);
+    expect(forms.find(form=>form.id==='form-666-fancy')?.availableGameIds).toEqual(['sv','za']);
+    expect(forms.find(form=>form.id==='form-666-poke-ball')?.availableGameIds).toEqual(['sv','za']);
+    expect(forms.find(form=>form.id==='form-710-small')?.availableGameIds).toEqual(['go','swsh','za']);
+    expect(forms.find(form=>form.id==='form-869-rainbow-swirl-strawberry-sweet')?.availableGameIds).toEqual(['swsh','sv']);
+    expect(forms.find(form=>form.id==='form-876-female')?.availableGameIds).toEqual(['go','swsh','sv','za']);
+    expect(forms.find(form=>form.id==='form-902-female')?.availableGameIds).toEqual(['pla','sv']);
+    expect(forms.find(form=>form.id==='form-982-three-segment')?.availableGameIds).toEqual(['go','sv']);
+    expect(forms.find(form=>form.id==='form-386-attack')?.availableGameIds).toEqual(['go','bdsp']);
+    expect(forms.find(form=>form.id==='form-905-therian')?.availableGameIds).toEqual(['go','pla','sv']);
+    expect(forms.find(form=>form.id==='form-647-resolute')?.availableGameIds).toEqual(['go','swsh','sv','za']);
+    expect(forms.find(form=>form.id==='form-718-10-percent')?.availableGameIds).toEqual(['go','swsh','za']);
+    expect(forms.find(form=>form.id==='form-901-bloodmoon')?.availableGameIds).toEqual(['sv']);
+    expect(forms.find(form=>form.id==='form-999-roaming')?.availableGameIds).toEqual(['go','sv','za']);
   });
 
   it('configures FRLG and Legends Z-A with their distinct Dex sections',()=>{

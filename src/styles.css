@@ -137,6 +137,20 @@
   .segmented button:hover, .toggle-row button:hover { @apply text-[var(--text)]; }
   .segmented button.active, .toggle-row button.active { @apply bg-[var(--surface)] text-[var(--accent)] shadow-sm; animation:segment-select 180ms ease-out; }
 
+  .game-variants-section { @apply my-8 overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--surface-2)]; }
+  .game-variants-toggle { @apply flex w-full cursor-pointer items-center justify-between gap-5 border-0 bg-transparent px-5 py-4 text-left text-[var(--text)]; }
+  .game-variants-toggle:hover { @apply bg-[color-mix(in_srgb,var(--accent)_5%,transparent)]; }
+  .game-variants-copy { @apply flex min-w-0 flex-col gap-1; }
+  .game-variants-copy > strong { @apply text-base; }
+  .game-variants-copy > small { @apply text-xs font-normal text-[var(--muted)]; }
+  .game-variants-progress { @apply flex shrink-0 items-center gap-4; }
+  .game-variants-progress > strong { @apply text-[var(--accent)]; }
+  .game-variants-progress > span { @apply flex items-center gap-1 text-xs font-bold text-[var(--muted)]; }
+  .game-variants-progress svg { @apply transition-transform; }
+  .game-variants-toggle[aria-expanded="true"] .game-variants-progress svg { @apply rotate-180; }
+  .game-variants-content { @apply border-t border-[var(--line)] px-4 pt-4; }
+  .game-variants-content > .progress-track { @apply mb-4; }
+
   .pokemon-box { @apply mb-5.5 overflow-hidden; }
   .pokemon-box > header { @apply grid grid-cols-[1fr_auto_1fr] items-center border-b border-[var(--line)] px-5 py-3.5; }
   .pokemon-box > header h2 { @apply m-0 truncate text-[13px] tracking-[1.2px]; }
@@ -146,6 +160,7 @@
   .dex-actions { @apply flex items-end gap-2 self-end; }
   .box-actions button, .dex-actions button { @apply flex cursor-pointer items-center gap-1 rounded-[7px] border border-[var(--line)] bg-[var(--surface-2)] px-2.5 py-1.5 text-[11px] font-bold text-[var(--text)]; }
   .box-actions button:hover, .dex-actions button:hover { @apply border-[var(--accent)] text-[var(--accent)]; }
+  .dex-actions button.game-variants-shortcut { @apply border-[color-mix(in_srgb,var(--accent)_35%,var(--line))] text-[var(--accent)]; }
   .box-actions button.danger:hover, .dex-actions button.danger:hover { @apply border-[#d45b64] text-[#d45b64]; }
   .pokemon-grid { @apply grid grid-cols-6 gap-px bg-[var(--line)]; }
   .pokemon-slot { @apply relative flex min-h-32 cursor-pointer flex-col items-center border-0 bg-[var(--surface)] px-1 py-2.5 text-[var(--text)] transition-colors; }
@@ -406,6 +421,9 @@
   .segmented button { @apply flex-1; }
   .dex-section-selector button { @apply flex-none; }
   .type-selector button { @apply flex-none; }
+  .game-variants-toggle { @apply items-start; }
+  .game-variants-progress { @apply flex-col items-end gap-1; }
+  .game-variants-progress > span { @apply whitespace-nowrap; }
   .pokemon-grid { @apply grid-cols-3; }
   .pokemon-slot { @apply min-h-30; }
   .pokemon-box > header { @apply grid-cols-[1fr_auto] gap-2; }
