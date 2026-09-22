@@ -137,6 +137,17 @@
   .segmented button:hover, .toggle-row button:hover { @apply text-[var(--text)]; }
   .segmented button.active, .toggle-row button.active { @apply bg-[var(--surface)] text-[var(--accent)] shadow-sm; animation:segment-select 180ms ease-out; }
 
+  .home-plan-panel { @apply mb-5.5 rounded-xl border border-[color-mix(in_srgb,var(--accent)_30%,var(--line))] bg-[color-mix(in_srgb,var(--accent)_5%,var(--surface))] p-5; }
+  .home-plan-heading { @apply flex items-start justify-between gap-5; }
+  .home-plan-heading h2 { @apply my-1 text-xl; }
+  .home-plan-heading p { @apply m-0 max-w-180 text-sm text-[var(--muted)]; }
+  .home-plan-heading > strong { @apply shrink-0 rounded-full bg-[color-mix(in_srgb,var(--accent)_14%,var(--surface))] px-3 py-1.5 text-xs text-[var(--accent)]; }
+  .home-plan-selector { @apply mt-4 grid grid-cols-4 gap-2; }
+  .home-plan-selector button { @apply flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-xs font-bold text-[var(--muted)]; }
+  .home-plan-selector button span { @apply grid min-w-6 place-items-center rounded-full bg-[var(--surface-2)] px-1.5 py-0.5 text-[10px] text-[var(--text)]; }
+  .home-plan-selector button:hover, .home-plan-selector button.active { @apply border-[var(--accent)] text-[var(--accent)]; }
+  .home-plan-selector button.active { @apply bg-[color-mix(in_srgb,var(--accent)_9%,var(--surface))]; }
+
   .game-variants-section { @apply my-8 overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--surface-2)]; }
   .game-variants-toggle { @apply flex w-full cursor-pointer items-center justify-between gap-5 border-0 bg-transparent px-5 py-4 text-left text-[var(--text)]; }
   .game-variants-toggle:hover { @apply bg-[color-mix(in_srgb,var(--accent)_5%,transparent)]; }
@@ -161,6 +172,8 @@
   .box-actions button, .dex-actions button { @apply flex cursor-pointer items-center gap-1 rounded-[7px] border border-[var(--line)] bg-[var(--surface-2)] px-2.5 py-1.5 text-[11px] font-bold text-[var(--text)]; }
   .box-actions button:hover, .dex-actions button:hover { @apply border-[var(--accent)] text-[var(--accent)]; }
   .dex-actions button.game-variants-shortcut { @apply border-[color-mix(in_srgb,var(--accent)_35%,var(--line))] text-[var(--accent)]; }
+  .dex-actions button.home-plan-shortcut { @apply border-[color-mix(in_srgb,var(--accent)_35%,var(--line))] text-[var(--accent)]; }
+  .dex-actions button.home-plan-shortcut.active { @apply bg-[color-mix(in_srgb,var(--accent)_12%,var(--surface))]; }
   .box-actions button.danger:hover, .dex-actions button.danger:hover { @apply border-[#d45b64] text-[#d45b64]; }
   .pokemon-grid { @apply grid grid-cols-6 gap-px bg-[var(--line)]; }
   .pokemon-slot { @apply relative flex min-h-32 cursor-pointer flex-col items-center border-0 bg-[var(--surface)] px-1 py-2.5 text-[var(--text)] transition-colors; }
@@ -421,6 +434,9 @@
   .segmented button { @apply flex-1; }
   .dex-section-selector button { @apply flex-none; }
   .type-selector button { @apply flex-none; }
+  .home-plan-heading { @apply flex-col; }
+  .home-plan-selector { @apply grid-cols-2; }
+  .home-plan-selector button { @apply justify-start; }
   .game-variants-toggle { @apply items-start; }
   .game-variants-progress { @apply flex-col items-end gap-1; }
   .game-variants-progress > span { @apply whitespace-nowrap; }
