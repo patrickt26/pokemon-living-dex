@@ -43,4 +43,16 @@ describe('PokemonDetails', () => {
     const gameSelect=view.getByLabelText('Game') as HTMLSelectElement;
     expect([...gameSelect.options].map(option=>option.text)).toEqual(['Pokémon HOME / National','Pokémon GO','Sword / Shield','Scarlet / Violet','Pokémon Legends: Z-A']);
   });
+
+  it('shows the evolution line and its conditions',()=>{
+    const form=pokemonDataSource.getFormsById().get('form-1-default')!;
+    const queryClient=new QueryClient({defaultOptions:{queries:{retry:false},mutations:{retry:false}}});
+    render(<QueryClientProvider client={queryClient}><PokemonDetails form={form} entries={[]} onClose={vi.fn()}/></QueryClientProvider>);
+
+    expect(screen.getByRole('heading',{name:'Evolution line'})).toBeInTheDocument();
+    expect(screen.getByText('Level up · level 16')).toBeInTheDocument();
+    expect(screen.getByText('Level up · level 32')).toBeInTheDocument();
+    expect(screen.getByText('Ivysaur')).toBeInTheDocument();
+    expect(screen.getByText('Venusaur')).toBeInTheDocument();
+  });
 });
