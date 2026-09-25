@@ -3,7 +3,7 @@ import { calculateGameProgress } from '../domain/collection';
 import { isFormAvailableInGame } from '../domain/gameAvailability';
 import type { CollectionEntry } from '../domain/models';
 import { generatedGameDexes } from './generatedGameDexes';
-import { dynamaxAdventureNumbers, formGroups, forms, games, noDexEntryNumbers } from './catalog';
+import { dynamaxAdventureNumbers, formGroups, forms, games, noDexEntryNumbers, svNoDexLegendaryNumbers } from './catalog';
 import { pokemonDataSource } from './PokemonDataSource';
 
 describe('generated game dex membership', () => {
@@ -59,6 +59,19 @@ describe('generated game dex membership', () => {
     expect(noDexEntryNumbers).toEqual(expect.arrayContaining([252,260,486,647,722,730,789,790,803,804]));
     expect([...dynamaxAdventureNumbers,...noDexEntryNumbers].filter(number=>[151,251,385,494,649,719,721,801,802,807,808,809].includes(number))).toEqual([]);
     expect(swsh.dexSections?.slice(-2).map(section=>section.id)).toEqual(['dynamax-adventures','no-dex-entries']);
+  });
+
+  it('adds only legendary and mythical no-Dex entries to Scarlet and Violet',()=>{
+    const sv=games.find(game=>game.id==='sv')!;
+    const noDex=sv.dexSections?.find(section=>section.id==='no-dex-entries');
+    const officialDexNumbers:Set<number>=new Set([...generatedGameDexes.paldea,...generatedGameDexes.kitakami,...generatedGameDexes.blueberry]);
+    expect(svNoDexLegendaryNumbers).toHaveLength(27);
+    expect(noDex).toMatchObject({name:'No Dex Entries',showDexNumbers:false});
+    expect(noDex?.dexSpeciesIds).toEqual(svNoDexLegendaryNumbers.map(number=>`species-${number}`));
+    expect(svNoDexLegendaryNumbers.some(number=>officialDexNumbers.has(number))).toBe(false);
+    expect(svNoDexLegendaryNumbers).toEqual(expect.arrayContaining([144,250,384,648,800,891,892,896,897]));
+    expect(sv.dexSpeciesIds).not.toContain('species-863');
+    expect(isFormAvailableInGame(forms.find(form=>form.id==='form-648-default')!,sv)).toBe(true);
   });
 
   it('requires Hisuian regional forms for the Hisui Dex', () => {
