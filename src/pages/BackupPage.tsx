@@ -6,7 +6,7 @@ import { ConfirmButton } from '../components/ConfirmButton';
 import { CloudAccountCard } from '../components/CloudAccountCard';
 import { CollectionIntegrityPanel } from '../components/CollectionIntegrityPanel';
 import { useCollection } from '../hooks/useCollection';
-import type { BackupPreview, ImportMode } from '../services/CollectionBackupService';
+import { assertBackupFileSize, type BackupPreview, type ImportMode } from '../services/CollectionBackupService';
 import { useI18n } from '../i18n';
 
 export function BackupPage() {
@@ -50,7 +50,7 @@ export function BackupPage() {
   const readFile = async (file?: File) => {
     if (!file) return;
     setError(''); setMessage('');
-    try { setPreview(collectionBackupService.parse(await file.text())); }
+    try { assertBackupFileSize(file.size); setPreview(collectionBackupService.parse(await file.text())); }
     catch { setPreview(undefined); setError(t('backupReadError', 'Could not read this backup. Check that the file is a valid Living Dex backup.')); }
     finally { if (inputRef.current) inputRef.current.value = ''; }
   };
