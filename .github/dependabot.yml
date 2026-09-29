@@ -8,6 +8,12 @@ updates:
       time: '09:00'
       timezone: America/Sao_Paulo
     open-pull-requests-limit: 5
+    ignore:
+      # Playwright 1.56+ no longer ships browsers for our macOS 12 development environment.
+      - dependency-name: '@playwright/test'
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
     groups:
       production-dependencies:
         dependency-type: production
@@ -24,4 +30,3 @@ updates:
       time: '09:30'
       timezone: America/Sao_Paulo
     open-pull-requests-limit: 5
-
