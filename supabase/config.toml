@@ -5,7 +5,6 @@ site_url = "https://living-dex-companion.vercel.app"
 additional_redirect_urls = [
   "http://localhost:5173/backup",
   "https://living-dex-companion.vercel.app/backup",
-  "https://pokemon-living-dex.vercel.app/backup",
 ]
 enable_anonymous_sign_ins = false
 enable_manual_linking = false
