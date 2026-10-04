@@ -64,11 +64,15 @@ export function DexPage({ gameId }: { gameId?: string }) {
   const visibleGroups = useMemo(()=>groups.map(group => ({ ...group, items: group.items.filter(item => { const owned=getIndexedEntries(entryIndex,item.species.id,item.form.id,item.collectBySpecies).some(entry=>entry.quantity>0);return ownershipFilter === 'all' || (ownershipFilter === 'owned' ? owned : !owned); }) })).filter(g => g.items.length),[groups,entryIndex,ownershipFilter]);
   const homePlanEntries=useMemo(()=>filterEntries(entries,{shiny,alpha:alphaFilter,ot:otFilter}),[entries,shiny,alphaFilter,otFilter]);
   const homePlanEntryIndex=useMemo(()=>indexCollectionEntries(homePlanEntries),[homePlanEntries]);
+  const gameVariantItems=useMemo(()=>game?getCataloguedVariantFormsForGame(allForms,game)
+    .filter(form=>isInTypes(form.types,selectedTypes))
+    .map(form=>({species:speciesById.get(form.speciesId)!,form,dexNumber:speciesById.get(form.speciesId)!.nationalDexNumber,showDexNumber:false,collectBySpecies:false}))
+    .sort((a,b)=>a.dexNumber-b.dexNumber||a.form.name.localeCompare(b.form.name)):[],[allForms,game,selectedTypes,speciesById]);
   const homePlanItems=useMemo(()=>{
     if(!game)return [];
-    const unique=new Map(groups.flatMap(group=>group.items).map(item=>[item.species.id,item]));
-    return [...unique.values()].map(item=>({...item,collectBySpecies:true,homePlanStatus:getHomePlanStatus(item.species.id,game.id,homePlanEntries)}));
-  },[game,groups,homePlanEntries]);
+    const unique=new Map([...groups.flatMap(group=>group.items),...gameVariantItems].map(item=>[item.form.id,item]));
+    return [...unique.values()].map(item=>({...item,collectBySpecies:false,homePlanStatus:getHomePlanStatus(item.species.id,item.form.id,game.id,homePlanEntries)}));
+  },[game,groups,gameVariantItems,homePlanEntries]);
   const homePlanCounts=useMemo(()=>homePlanItems.reduce<Record<HomePlanStatus,number>>((counts,item)=>({...counts,[item.homePlanStatus]:counts[item.homePlanStatus]+1}),{transfer:0,covered:0,missing:0}),[homePlanItems]);
   const visibleHomePlanItems=useMemo(()=>homePlanItems.filter(item=>{
     if(homePlanFilter!=='all'&&item.homePlanStatus!==homePlanFilter)return false;
@@ -79,10 +83,6 @@ export function DexPage({ gameId }: { gameId?: string }) {
   const homePlanLabels:Record<HomePlanStatus,string>={transfer:t('homePlanTransfer','Send to HOME'),covered:t('homePlanCovered','Already covered'),missing:t('homePlanMissing','Still missing')};
   const homePlanGroups=(homePlanFilter==='all'?(['transfer','covered','missing'] as const):[homePlanFilter]).map(status=>({id:`home-${status}`,label:homePlanLabels[status],items:displayedHomePlanItems.filter(item=>item.homePlanStatus===status)})).filter(group=>group.items.length);
   const homePlanBoxes=paginateDexGroupList(homePlanGroups,30,'home-plan-');
-  const gameVariantItems=useMemo(()=>game?getCataloguedVariantFormsForGame(allForms,game)
-    .filter(form=>isInTypes(form.types,selectedTypes))
-    .map(form=>({species:speciesById.get(form.speciesId)!,form,dexNumber:speciesById.get(form.speciesId)!.nationalDexNumber,showDexNumber:false,collectBySpecies:false}))
-    .sort((a,b)=>a.dexNumber-b.dexNumber||a.form.name.localeCompare(b.form.name)):[],[allForms,game,selectedTypes,speciesById]);
   const visibleGameVariantItems=useMemo(()=>gameVariantItems.filter(item=>{const owned=(entryIndex.byFormId.get(item.form.id)??[]).some(entry=>entry.quantity>0);return ownershipFilter==='all'||(ownershipFilter==='owned'?owned:!owned)}),[gameVariantItems,entryIndex,ownershipFilter]);
   const displayedGameVariantItems=searchTargetSpeciesId?visibleGameVariantItems.filter(item=>item.species.id===searchTargetSpeciesId):visibleGameVariantItems;
   const searchSuggestions=useMemo(()=>createDexSearchSuggestions(showHomePlan?visibleHomePlanItems:[...visibleGroups.flatMap(group=>group.items),...visibleGameVariantItems]),[showHomePlan,visibleHomePlanItems,visibleGroups,visibleGameVariantItems]);
