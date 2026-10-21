@@ -18,7 +18,10 @@ A aplicação atualmente oferece:
 - National Dex completa com 1.025 espécies.
 - Filtros Normal, Shiny, Alpha, posse, Treinador Original, geração e tipo.
 - Formas regionais e especiais, incluindo grupos de formas reutilizáveis.
+- Plano HOME dedicado, diferenciando formas padrão, regionais e variantes e mostrando quais entradas ainda precisam ser transferidas.
 - Dexes específicas por jogo e seções para jogos e DLCs suportados.
+- Variantes catalogadas por jogo, com filtragem baseada na disponibilidade.
+- Detalhes de linhas evolutivas com níveis, itens e condições em um modal horizontal.
 - Edição rápida pelos detalhes, clique duplo e atalhos de teclado.
 - Ações em lote para completar ou limpar, com confirmação e Undo quando aplicável.
 - Backup JSON versionado com validação, prévia, mesclagem e substituição.
@@ -46,12 +49,12 @@ flowchart LR
 
 - **Coleção local:** IndexedDB é o armazenamento principal usado durante a navegação e edição.
 - **Conta opcional:** o login não é necessário para uso local.
-- **Cópia na nuvem:** usuários autenticados podem importar a coleção local para uma coleção vazia na nuvem.
-- **Restauração:** um snapshot da nuvem pode ser restaurado quando a coleção do dispositivo está vazia.
-- **Indicadores:** o header compara resumos local e remoto; isso não significa sincronização contínua.
-- **Limitação atual:** sincronização automática bidirecional e resolução de conflitos ainda não foram implementadas.
+- **Sincronização na nuvem:** após a confirmação do primeiro envio, usuários autenticados sincronizam alterações locais e recebem alterações que existem apenas na nuvem.
+- **Segurança contra conflitos:** cada dispositivo acompanha a revisão sincronizada. Quando os dois lados mudaram, nenhum deles é sobrescrito até o usuário escolher qual coleção manter.
+- **Indicadores:** o header informa estados desconectado, sincronizando, sincronizado, conflito e erro.
+- **Funcionamento offline:** alterações locais continuam no IndexedDB e são reconciliadas quando a conexão retorna, a aba recupera o foco ou a verificação periódica é executada.
 
-O envio à nuvem não apaga os dados locais. A importação é atômica e se recusa a sobrescrever uma coleção remota que não esteja vazia.
+O envio à nuvem não apaga os dados locais. A substituição da nuvem é atômica e usa a revisão esperada, impedindo que um dispositivo desatualizado sobrescreva alterações mais recentes.
 
 ## Tecnologias e plataformas
 
@@ -125,8 +128,10 @@ Para provedores, redirects, migrations e checklist de produção, leia [Configur
 | `pnpm typecheck` | Executa a verificação dos projetos TypeScript. |
 | `pnpm test` | Executa uma vez toda a suíte Vitest. |
 | `pnpm test:watch` | Executa testes em modo de observação. |
+| `pnpm test:e2e` | Executa os testes E2E de navegador com Playwright. |
 | `pnpm data:generate:species` | Gera o catálogo versionado de espécies a partir de uma exportação PokéAPI. |
 | `pnpm data:generate:types` | Gera tipos Pokémon a partir do CSV esperado. |
+| `pnpm data:generate:evolutions` | Gera dados de linhas evolutivas a partir de exportações da PokéAPI. |
 | `pnpm data:generate:games` | Gera associações das Dexes de jogos usando recursos da PokéAPI. |
 
 Execute a validação completa antes de um merge:
@@ -135,6 +140,7 @@ Execute a validação completa antes de um merge:
 pnpm lint
 pnpm typecheck
 pnpm test
+pnpm test:e2e
 pnpm build
 ```
 
@@ -268,6 +274,8 @@ GitHub Actions executa em pushes e pull requests com Node.js 22 e pnpm 10.15.0:
 4. Vitest.
 5. Build de produção.
 
+Pull requests executam a validação do CI e a análise CodeQL. Os smoke tests E2E com Playwright estão disponíveis por meio de `pnpm test:e2e`. O Dependabot monitora dependências npm e GitHub Actions.
+
 Use o [Checklist de release](docs/RELEASE_CHECKLIST.md) para smoke tests e validações manuais de segurança.
 
 ## Fluxo de deploy
@@ -288,8 +296,7 @@ Produção utiliza o fallback de SPA do `vercel.json`, então rotas como `/natio
 
 ## Limitações atuais e próximos passos
 
-- A nuvem oferece importação e restauração seguras, não sincronização automática bidirecional.
-- Resolução de conflitos entre dispositivos será definida junto com a sincronização.
+- A sincronização em nuvem usa snapshots revisionados; conflitos entre alterações completas exigem uma escolha do usuário e não há mesclagem campo a campo.
 - O funcionamento offline depende de a aplicação e os assets remotos terem sido carregados anteriormente.
 - SMTP customizado, CAPTCHA, MFA administrativo e restrições de rede exigem contas ou infraestrutura externas.
 - Atualizações do catálogo são geradas e revisadas manualmente, não buscadas durante a execução.

@@ -18,7 +18,10 @@ The application currently includes:
 - The complete National Dex with 1,025 species.
 - Normal, Shiny, Alpha, ownership, Original Trainer, generation, and type filters.
 - Regional and special forms, including reusable form groups.
+- A dedicated HOME plan that distinguishes default, regional, and variant forms and shows which entries still need to be transferred.
 - Game-specific Dexes and sections for supported games and DLCs.
+- Catalogued game variants with availability-aware filtering.
+- Evolution-line details with levels, items, and conditions in a horizontal modal.
 - Fast collection editing through details, double-click, and keyboard shortcuts.
 - Batch completion and clearing actions with confirmation and Undo where applicable.
 - Versioned JSON backups with validation, preview, merge, and replace modes.
@@ -125,8 +128,10 @@ For provider configuration, redirect URLs, migrations, and the production checkl
 | `pnpm typecheck` | Run the TypeScript project build without pretty output. |
 | `pnpm test` | Run the complete Vitest suite once. |
 | `pnpm test:watch` | Run tests in watch mode. |
+| `pnpm test:e2e` | Run Playwright end-to-end browser tests. |
 | `pnpm data:generate:species` | Generate the versioned species catalog from a supplied PokéAPI export. |
 | `pnpm data:generate:types` | Generate Pokémon type data from the expected CSV input. |
+| `pnpm data:generate:evolutions` | Generate evolution-chain data from PokéAPI exports. |
 | `pnpm data:generate:games` | Generate game Pokédex memberships from PokéAPI resources. |
 
 Run the full local validation before merging:
@@ -135,6 +140,7 @@ Run the full local validation before merging:
 pnpm lint
 pnpm typecheck
 pnpm test
+pnpm test:e2e
 pnpm build
 ```
 
@@ -267,6 +273,8 @@ GitHub Actions runs on pushes and pull requests using Node.js 22 and pnpm 10.15.
 3. TypeScript checks.
 4. Vitest.
 5. Production build.
+
+Pull requests run the CI validation and CodeQL analysis. Playwright end-to-end smoke coverage is available through `pnpm test:e2e`. Dependabot monitors npm and GitHub Actions dependencies.
 
 Use [Release checklist](docs/RELEASE_CHECKLIST.md) for manual smoke and production security checks.
 
